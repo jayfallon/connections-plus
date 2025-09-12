@@ -3,19 +3,49 @@
 import { Card, CardBody, Button } from "@heroui/react";
 import { useState, useEffect } from "react";
 
-const words = [
-  "BASS", "FLOUNDER", "SALMON", "TROUT",
-  "APPLE", "BANANA", "CHERRY", "GRAPE", 
-  "GUITAR", "PIANO", "VIOLIN", "DRUMS",
-  "RED", "BLUE", "GREEN", "YELLOW",
-  "ORANGE"
-];
-
-const groups = {
-  fish: { words: ["BASS", "FLOUNDER", "SALMON", "TROUT"], color: "bg-yellow-400", difficulty: "Easiest", category: "FISH" },
-  fruits: { words: ["APPLE", "BANANA", "CHERRY", "GRAPE"], color: "bg-green-400", difficulty: "Easy", category: "FRUITS" },
-  instruments: { words: ["GUITAR", "PIANO", "VIOLIN", "DRUMS"], color: "bg-blue-400", difficulty: "Medium", category: "INSTRUMENTS" },
-  colors: { words: ["RED", "BLUE", "GREEN", "YELLOW"], color: "bg-purple-400", difficulty: "Hard", category: "COLORS" }
+const gameConfig = {
+  levels: [
+    {
+      id: 1,
+      redHerring: "ORANGE",
+      groups: {
+        fish: { words: ["BASS", "FLOUNDER", "SALMON", "TROUT"], color: "bg-yellow-400", difficulty: "Easiest", category: "FISH" },
+        fruits: { words: ["APPLE", "BANANA", "CHERRY", "GRAPE"], color: "bg-green-400", difficulty: "Easy", category: "FRUITS" },
+        instruments: { words: ["GUITAR", "PIANO", "VIOLIN", "DRUMS"], color: "bg-blue-400", difficulty: "Medium", category: "INSTRUMENTS" },
+        colors: { words: ["RED", "BLUE", "GREEN", "YELLOW"], color: "bg-purple-400", difficulty: "Hard", category: "COLORS" }
+      }
+    },
+    {
+      id: 2,
+      redHerring: "SPRING",
+      groups: {
+        metals: { words: ["GOLD", "SILVER", "COPPER", "IRON"], color: "bg-yellow-400", difficulty: "Easiest", category: "METALS" },
+        weather: { words: ["RAIN", "SNOW", "HAIL", "SLEET"], color: "bg-green-400", difficulty: "Easy", category: "WEATHER" },
+        vehicles: { words: ["CAR", "TRUCK", "BUS", "VAN"], color: "bg-blue-400", difficulty: "Medium", category: "VEHICLES" },
+        planets: { words: ["MARS", "VENUS", "EARTH", "JUPITER"], color: "bg-purple-400", difficulty: "Hard", category: "PLANETS" }
+      }
+    },
+    {
+      id: 3,
+      redHerring: "BANK",
+      groups: {
+        shapes: { words: ["CIRCLE", "SQUARE", "TRIANGLE", "OVAL"], color: "bg-yellow-400", difficulty: "Easiest", category: "SHAPES" },
+        animals: { words: ["DOG", "CAT", "BIRD", "FISH"], color: "bg-green-400", difficulty: "Easy", category: "ANIMALS" },
+        sports: { words: ["SOCCER", "TENNIS", "GOLF", "HOCKEY"], color: "bg-blue-400", difficulty: "Medium", category: "SPORTS" },
+        emotions: { words: ["HAPPY", "SAD", "ANGRY", "CALM"], color: "bg-purple-400", difficulty: "Hard", category: "EMOTIONS" }
+      }
+    },
+    {
+      id: 4,
+      redHerring: "POUND", // This will complete the red herring group
+      groups: {
+        furniture: { words: ["CHAIR", "TABLE", "SOFA", "DESK"], color: "bg-yellow-400", difficulty: "Easiest", category: "FURNITURE" },
+        foods: { words: ["BREAD", "PASTA", "RICE", "SOUP"], color: "bg-green-400", difficulty: "Easy", category: "FOODS" },
+        tools: { words: ["HAMMER", "SAW", "DRILL", "WRENCH"], color: "bg-blue-400", difficulty: "Medium", category: "TOOLS" },
+        redHerrings: { words: ["ORANGE", "SPRING", "BANK", "POUND"], color: "bg-red-500", difficulty: "Ultimate", category: "DOUBLE MEANINGS" }
+      }
+    }
+  ]
 };
 
 export default function Home() {
@@ -25,16 +55,47 @@ export default function Home() {
   const [feedback, setFeedback] = useState<string>("");
   const [shuffledWords, setShuffledWords] = useState<string[]>([]);
   const [gameComplete, setGameComplete] = useState(false);
+  const [currentLevel, setCurrentLevel] = useState(1);
+  const [accumulatedRedHerrings, setAccumulatedRedHerrings] = useState<string[]>([]);
+  const [allLevelsComplete, setAllLevelsComplete] = useState(false);
 
-  // Shuffle words on initial load
+  // Get current level configuration
+  const getCurrentLevel = () => gameConfig.levels.find(level => level.id === currentLevel);
+  const currentLevelConfig = getCurrentLevel();
+  
+  // Build current words array (level words + accumulated red herrings + current red herring)
+  const getCurrentWords = () => {
+    if (!currentLevelConfig) return [];
+    
+    const levelWords: string[] = [];
+    Object.values(currentLevelConfig.groups).forEach(group => {
+      levelWords.push(...group.words);
+    });
+    
+    // For final level, red herrings are part of the groups, not separate
+    if (currentLevel === 4) {
+      return levelWords;
+    }
+    
+    // For levels 1-3, add accumulated red herrings + current level's red herring
+    return [...levelWords, ...accumulatedRedHerrings, currentLevelConfig.redHerring];
+  };
+
+  // Shuffle words on level change
   useEffect(() => {
-    const shuffled = [...words];
+    const currentWords = getCurrentWords();
+    const shuffled = [...currentWords];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     setShuffledWords(shuffled);
-  }, []);
+    // Reset level-specific state
+    setSelectedWords([]);
+    setSolvedGroups([]);
+    setGameComplete(false);
+    setMistakesRemaining(4);
+  }, [currentLevel, accumulatedRedHerrings]);
 
   const handleWordClick = (word: string) => {
     setSelectedWords(prev => 
@@ -59,28 +120,41 @@ export default function Home() {
   };
 
   const startNewGame = () => {
+    setCurrentLevel(1);
+    setAccumulatedRedHerrings([]);
     setSelectedWords([]);
     setMistakesRemaining(4);
     setSolvedGroups([]);
     setFeedback("");
     setGameComplete(false);
-    // Re-shuffle words
-    const shuffled = [...words];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    setAllLevelsComplete(false);
+  };
+
+  const advanceToNextLevel = () => {
+    if (!currentLevelConfig) return;
+    
+    // Add current red herring to accumulated list (except for level 4)
+    if (currentLevel < 4) {
+      setAccumulatedRedHerrings(prev => [...prev, currentLevelConfig.redHerring]);
     }
-    setShuffledWords(shuffled);
+    
+    if (currentLevel < 4) {
+      setCurrentLevel(prev => prev + 1);
+      setFeedback(`Level ${currentLevel} complete! Advancing to Level ${currentLevel + 1}...`);
+    } else {
+      setAllLevelsComplete(true);
+      setFeedback("🎉 INCREDIBLE! You discovered the secret red herring group!");
+    }
   };
 
   const submitGuess = () => {
-    if (selectedWords.length !== 4) return;
+    if (selectedWords.length !== 4 || !currentLevelConfig) return;
 
     // Check if selected words form a correct group
     const selectedSet = new Set(selectedWords);
     let correctGroup = null;
 
-    for (const [groupName, groupData] of Object.entries(groups)) {
+    for (const [groupName, groupData] of Object.entries(currentLevelConfig.groups)) {
       const groupSet = new Set(groupData.words);
       if (selectedSet.size === groupSet.size && 
           [...selectedSet].every(word => groupSet.has(word))) {
@@ -94,22 +168,35 @@ export default function Home() {
       const newSolvedGroups = [...solvedGroups, correctGroup];
       setSolvedGroups(newSolvedGroups);
       setSelectedWords([]);
-      setFeedback(`Correct! You found the ${correctGroup} group!`);
       
-      // Check for win condition
-      if (newSolvedGroups.length === 4) {
+      const groupData = currentLevelConfig.groups[correctGroup as keyof typeof currentLevelConfig.groups];
+      setFeedback(`Correct! You found the ${groupData?.category || correctGroup} group!`);
+      
+      // Check for level completion
+      const totalGroupsInLevel = Object.keys(currentLevelConfig.groups).length;
+      if (newSolvedGroups.length === totalGroupsInLevel) {
         setGameComplete(true);
-        const mistakesMade = 4 - mistakesRemaining;
-        let rating = "";
-        switch (mistakesMade) {
-          case 0: rating = "Perfect!"; break;
-          case 1: rating = "Great!"; break;
-          case 2: rating = "Okay"; break;
-          case 3: rating = "Not bad"; break;
-          case 4: rating = "Charity case"; break;
-          default: rating = "Complete!"; break;
+        
+        // Level-specific completion logic
+        if (currentLevel === 4) {
+          // Final level completed
+          setTimeout(() => {
+            advanceToNextLevel(); // This will set allLevelsComplete
+          }, 1500);
+        } else {
+          // Regular level completed
+          const mistakesMade = 4 - mistakesRemaining;
+          let rating = "";
+          switch (mistakesMade) {
+            case 0: rating = "Perfect!"; break;
+            case 1: rating = "Great!"; break;
+            case 2: rating = "Okay"; break;
+            case 3: rating = "Not bad"; break;
+            case 4: rating = "Charity case"; break;
+            default: rating = "Complete!"; break;
+          }
+          setFeedback(`${rating} Level ${currentLevel} complete with ${mistakesMade} mistake${mistakesMade !== 1 ? 's' : ''}!`);
         }
-        setFeedback(`${rating} You solved all groups with ${mistakesMade} mistake${mistakesMade !== 1 ? 's' : ''}!`);
         return; // Don't clear feedback for win condition
       }
     } else {
@@ -124,20 +211,45 @@ export default function Home() {
   };
 
   // Filter out words that are already solved
-  const solvedWords = new Set();
-  solvedGroups.forEach(groupName => {
-    groups[groupName as keyof typeof groups].words.forEach(word => solvedWords.add(word));
-  });
+  const getSolvedWords = () => {
+    if (!currentLevelConfig) return new Set();
+    
+    const solvedWords = new Set();
+    solvedGroups.forEach(groupName => {
+      const group = currentLevelConfig.groups[groupName as keyof typeof currentLevelConfig.groups];
+      if (group) {
+        group.words.forEach(word => solvedWords.add(word));
+      }
+    });
+    return solvedWords;
+  };
+  
+  const solvedWords = getSolvedWords();
   const remainingWords = shuffledWords.filter(word => !solvedWords.has(word));
 
   return (
     <div className="min-h-screen bg-white p-8">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-4 text-black">Create four groups of four!</h1>
+          {/* Level indicator */}
+          <div className="mb-4 flex justify-between items-center">
+            <span className="text-lg text-gray-600">Level {currentLevel} of 4</span>
+            <a 
+              href="/admin" 
+              className="text-sm text-blue-600 hover:text-blue-800 underline"
+            >
+              Admin Panel
+            </a>
+          </div>
+          
+          <h1 className="text-3xl font-bold mb-4 text-black">
+            {currentLevel === 4 ? "Final Challenge: Find the secret group!" : "Create four groups of four!"}
+          </h1>
           {feedback && (
             <div className={`text-lg font-medium ${
-              feedback.includes("Correct") ? "text-green-600" : "text-red-600"
+              feedback.includes("Correct") || feedback.includes("INCREDIBLE") || feedback.includes("Level") 
+                ? "text-green-600" 
+                : "text-red-600"
             }`}>
               {feedback}
             </div>
@@ -145,10 +257,12 @@ export default function Home() {
         </div>
 
         {/* Solved groups */}
-        {solvedGroups.length > 0 && (
+        {solvedGroups.length > 0 && currentLevelConfig && (
           <div className="space-y-3 mb-6">
             {solvedGroups.map((groupName) => {
-              const group = groups[groupName as keyof typeof groups];
+              const group = currentLevelConfig.groups[groupName as keyof typeof currentLevelConfig.groups];
+              if (!group) return null;
+              
               return (
                 <div
                   key={groupName}
@@ -239,13 +353,30 @@ export default function Home() {
           </div>
           
           <div className="flex justify-center gap-4">
-            {gameComplete ? (
+            {allLevelsComplete ? (
               <Button
                 onPress={startNewGame}
                 className="px-8 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700"
               >
-                New Game
+                Play Again
               </Button>
+            ) : gameComplete && currentLevel < 4 ? (
+              <Button
+                onPress={advanceToNextLevel}
+                className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700"
+              >
+                Next Level
+              </Button>
+            ) : gameComplete && currentLevel === 4 ? (
+              <div className="text-center">
+                <div className="text-green-600 font-bold mb-4">🎉 All Levels Complete! 🎉</div>
+                <Button
+                  onPress={startNewGame}
+                  className="px-8 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700"
+                >
+                  Play Again
+                </Button>
+              </div>
             ) : (
               <>
                 <Button
