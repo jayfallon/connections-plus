@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       gameId: gameConfig.id,
       date: gameConfig.date,
+      title: gameConfig.title || "Daily Puzzle",
       levels: gameConfig.levels
     });
 

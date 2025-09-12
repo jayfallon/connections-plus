@@ -1,0 +1,107 @@
+{
+  "gameId": "dev-game",
+  "date": "2025-01-12",
+  "title": "Development Test Game",
+  "levels": [
+    {
+      "groups": [
+        {
+          "title": "APOSTLES",
+          "words": ["PETER", "JOHN", "MATTHEW", "ANDREW"],
+          "color": "bg-amber-200"
+        },
+        {
+          "title": "SYMBOLS NOT CROSS",
+          "words": ["HEART", "STAR", "CIRCLE", "SQUARE"],
+          "color": "bg-[#a0c35a]"
+        },
+        {
+          "title": "CRAYONS",
+          "words": ["PERIWINKLE", "MAIZE", "CERULEAN", "THISTLE"],
+          "color": "bg-[#b0c4ef]"
+        },
+        {
+          "title": "DOG BREEDS",
+          "words": ["VIZSLA", "KOMONDOR", "XOLO", "KUVASZ"],
+          "color": "bg-[#ba81c5]"
+        }
+      ],
+      "redHerring": "PARKER"
+    },
+    {
+      "groups": [
+        {
+          "title": "MOUNTAIN NAMES",
+          "words": ["EVEREST", "DENALI", "KILIMANJARO", "FUJI"],
+          "color": "bg-amber-200"
+        },
+        {
+          "title": "RIVER NAMES",
+          "words": ["NILE", "THAMES", "DANUBE", "VOLGA"],
+          "color": "bg-[#a0c35a]"
+        },
+        {
+          "title": "CRAB TYPES",
+          "words": ["DUNGENESS", "HERMIT", "FIDDLER", "HORSESHOE"],
+          "color": "bg-[#b0c4ef]"
+        },
+        {
+          "title": "JAPANESE ISLANDS",
+          "words": ["HONSHU", "KYUSHU", "SHIKOKU", "HOKKAIDO"],
+          "color": "bg-[#ba81c5]"
+        }
+      ],
+      "redHerring": "MONTBLANC"
+    },
+    {
+      "groups": [
+        {
+          "title": "HOSPITALITY JOBS",
+          "words": ["BELLHOP", "CONCIERGE", "DOORMAN", "HOUSEKEEPER"],
+          "color": "bg-amber-200"
+        },
+        {
+          "title": "NURSING JOBS",
+          "words": ["MIDWIFE", "MATRON", "PEDIATRIC", "HOSPICE"],
+          "color": "bg-[#a0c35a]"
+        },
+        {
+          "title": "COMBAT SPORTS",
+          "words": ["KARATE", "JUDO", "SUMO", "KENDO"],
+          "color": "bg-[#b0c4ef]"
+        },
+        {
+          "title": "PRESIDENTS LAST NAMES",
+          "words": ["PIERCE", "GRANT", "BUSH", "POLK"],
+          "color": "bg-[#ba81c5]"
+        }
+      ],
+      "redHerring": "CROSS"
+    },
+    {
+      "groups": [
+        {
+          "title": "MAINE BEACHES",
+          "words": ["OGUNQUIT", "WELLS", "POPHAM", "HIGGINS"],
+          "color": "bg-amber-200"
+        },
+        {
+          "title": "CURRY NAMES",
+          "words": ["KORMA", "VINDALOO", "TIKKA", "MADRAS"],
+          "color": "bg-[#a0c35a]"
+        },
+        {
+          "title": "FRENCH DISHES",
+          "words": ["RATATOUILLE", "CASSOULET", "BOUILLABAISSE", "QUICHE"],
+          "color": "bg-[#b0c4ef]"
+        },
+        {
+          "title": "DOUBLE MEANINGS",
+          "words": ["PARKER", "MONTBLANC", "CROSS", "CARAN DACHE"],
+          "color": "bg-red-500"
+        }
+      ],
+      "redHerring": ""
+    }
+  ]
+}
