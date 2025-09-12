@@ -1,16 +1,15 @@
-import { Redis } from 'redis';
+import { createClient, RedisClientType } from 'redis';
 
-let redis: Redis | null = null;
+let redis: RedisClientType | null = null;
 
-export async function getRedisClient(): Promise<Redis> {
+export async function getRedisClient(): Promise<RedisClientType> {
   if (!redis) {
-    redis = new Redis({
-      host: process.env.REDIS_HOST!,
-      port: parseInt(process.env.REDIS_PORT!),
-      password: process.env.REDIS_PASSWORD!,
-      retryDelayOnFailover: 100,
-      maxRetriesPerRequest: 3,
-      lazyConnect: true
+    redis = createClient({
+      socket: {
+        host: process.env.REDIS_HOST!,
+        port: parseInt(process.env.REDIS_PORT!),
+      },
+      password: process.env.REDIS_PASSWORD!
     });
 
     await redis.connect();

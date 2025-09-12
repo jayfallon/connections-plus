@@ -268,7 +268,7 @@ export default function AdminPage() {
                   <DatePicker
                     label="Puzzle Date"
                     value={selectedDate}
-                    onChange={setSelectedDate}
+                    onChange={(value) => value && setSelectedDate(value)}
                     description={format(new Date(selectedDate.toString()), 'PPPP')}
                   />
                 </div>

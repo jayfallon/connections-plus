@@ -3,10 +3,10 @@ import { getGameConfig, deleteGameConfig, saveGameConfig, GameConfig } from '@/l
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { date: string } }
+  { params }: { params: Promise<{ date: string }> }
 ) {
   try {
-    const { date } = params;
+    const { date } = await params;
 
     if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       return NextResponse.json(
@@ -40,10 +40,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { date: string } }
+  { params }: { params: Promise<{ date: string }> }
 ) {
   try {
-    const { date } = params;
+    const { date } = await params;
     const gameData = await request.json();
 
     if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -85,10 +85,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { date: string } }
+  { params }: { params: Promise<{ date: string }> }
 ) {
   try {
-    const { date } = params;
+    const { date } = await params;
 
     if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       return NextResponse.json(
