@@ -27,10 +27,10 @@ interface GameConfig {
 }
 
 const difficulties = [
-  { key: "yellow", label: "Yellow (Easiest)", color: "bg-yellow-400" },
-  { key: "green", label: "Green (Easy)", color: "bg-green-400" },
-  { key: "blue", label: "Blue (Medium)", color: "bg-blue-400" },
-  { key: "purple", label: "Purple (Hard)", color: "bg-purple-400" },
+  { key: "yellow", label: "Yellow (Easiest)", color: "bg-amber-200" },
+  { key: "green", label: "Green (Easy)", color: "bg-[#a0c35a]" },
+  { key: "blue", label: "Blue (Medium)", color: "bg-[#b0c4ef]" },
+  { key: "purple", label: "Purple (Hard)", color: "bg-[#ba81c5]" },
 ];
 
 export default function AdminPage() {

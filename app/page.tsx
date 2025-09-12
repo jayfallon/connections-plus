@@ -11,25 +11,25 @@ const gameConfig = {
       groups: {
         group1: {
           words: ["PETER", "JOHN", "MATTHEW", "ANDREW"],
-          color: "bg-yellow-400",
+          color: "bg-amber-200",
           difficulty: "Yellow",
           category: "APOSTLES",
         },
         group2: {
           words: ["HEART", "STAR", "CIRCLE", "SQUARE"],
-          color: "bg-green-400",
+          color: "bg-[#a0c35a]",
           difficulty: "Green",
           category: "SYMBOLS NOT CROSS",
         },
         group3: {
           words: ["PERIWINKLE", "MAIZE", "CERULEAN", "THISTLE"],
-          color: "bg-blue-400",
+          color: "bg-[#b0c4ef]",
           difficulty: "Blue",
           category: "CRAYONS",
         },
         group4: {
           words: ["VIZSLA", "KOMONDOR", "XOLO", "KUVASZ"],
-          color: "bg-purple-400",
+          color: "bg-[#ba81c5]",
           difficulty: "Purple",
           category: "DOG BREEDS",
         },
@@ -41,25 +41,25 @@ const gameConfig = {
       groups: {
         group1: {
           words: ["EVEREST", "DENALI", "KILIMANJARO", "FUJI"],
-          color: "bg-yellow-400",
+          color: "bg-amber-200",
           difficulty: "Yellow",
           category: "MOUNTAIN NAMES",
         },
         group2: {
           words: ["NILE", "THAMES", "DANUBE", "VOLGA"],
-          color: "bg-green-400",
+          color: "bg-[#a0c35a]",
           difficulty: "Green",
           category: "RIVER NAMES",
         },
         group3: {
           words: ["DUNGENESS", "HERMIT", "FIDDLER", "HORSESHOE"],
-          color: "bg-blue-400",
+          color: "bg-[#b0c4ef]",
           difficulty: "Blue",
           category: "CRAB TYPES",
         },
         group4: {
           words: ["HONSHU", "KYUSHU", "SHIKOKU", "HOKKAIDO"],
-          color: "bg-purple-400",
+          color: "bg-[#ba81c5]",
           difficulty: "Purple",
           category: "JAPANESE ISLANDS",
         },
@@ -67,29 +67,29 @@ const gameConfig = {
     },
     {
       id: 3,
-      redHerring: "PARKER",
+      redHerring: "CROSS",
       groups: {
         group1: {
           words: ["BELLHOP", "CONCIERGE", "DOORMAN", "HOUSEKEEPER"],
-          color: "bg-yellow-400",
+          color: "bg-amber-200",
           difficulty: "Yellow",
           category: "HOSPITALITY JOBS",
         },
         group2: {
           words: ["MIDWIFE", "MATRON", "PEDIATRIC", "HOSPICE"],
-          color: "bg-green-400",
+          color: "bg-[#a0c35a]",
           difficulty: "Green",
           category: "NURSING JOBS",
         },
         group3: {
           words: ["KARATE", "JUDO", "SUMO", "KENDO"],
-          color: "bg-blue-400",
+          color: "bg-[#b0c4ef]",
           difficulty: "Blue",
           category: "COMBAT SPORTS",
         },
         group4: {
           words: ["PIERCE", "GRANT", "BUSH", "POLK"],
-          color: "bg-purple-400",
+          color: "bg-[#ba81c5]",
           difficulty: "Purple",
           category: "PRESIDENT'S LAST NAMES",
         },
@@ -101,24 +101,24 @@ const gameConfig = {
       groups: {
         group1: {
           words: ["OGUNQUIT", "WELLS", "POPHAM", "HIGGINS"],
-          color: "bg-yellow-400",
+          color: "bg-amber-200",
           difficulty: "Yellow",
           category: "MAINE BEACHES",
         },
         group2: {
           words: ["KORMA", "VINDALOO", "TIKKA", "MADRAS"],
-          color: "bg-green-400",
+          color: "bg-[#a0c35a]",
           difficulty: "Green",
           category: "CURRY NAMES",
         },
         group3: {
           words: ["RATATOUILLE", "CASSOULET", "BOUILLABAISSE", "QUICHE"],
-          color: "bg-blue-400",
+          color: "bg-[#b0c4ef]",
           difficulty: "Blue",
           category: "FRENCH DISHES",
         },
         group4: {
-          words: ["MONTBLANC", "CARAN D'ACHE", "PARKER", "CROSS"],
+          words: ["PARKER", "MONTBLANC", "CROSS", "CARAN D'ACHE"],
           color: "bg-red-500",
           difficulty: "Ultimate",
           category: "DOUBLE MEANINGS",
@@ -350,7 +350,7 @@ export default function Home() {
   const remainingWords = shuffledWords.filter((word) => !solvedWords.has(word));
 
   return (
-    <div className="min-h-screen bg-white p-8">
+    <div className="min-h-screen bg-white p-2">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
           {/* Level indicator */}
@@ -415,23 +415,44 @@ export default function Home() {
 
         {!gameComplete && (
           <div className="mb-6">
-            {/* Words in 4x4 grid, excluding the last word if it should be centered */}
+            {/* Always show 4x4 grid for first 16 words */}
             <div className="grid grid-cols-4 gap-3 mb-3">
-              {remainingWords
-                .slice(
-                  0,
-                  remainingWords.length > 16 ||
-                    (remainingWords.length % 4 === 1 &&
-                      remainingWords.length > 1)
-                    ? remainingWords.length - 1
-                    : remainingWords.length
-                )
-                .map((word, index) => (
+              {remainingWords.slice(0, Math.min(16, remainingWords.length)).map((word, index) => (
+                <Card
+                  key={index}
+                  isPressable
+                  onPress={() => handleWordClick(word)}
+                  className={`aspect-[5/4] transition-all cursor-pointer ${
+                    selectedWords.includes(word)
+                      ? "bg-gray-700 shadow-inner"
+                      : "bg-gray-200 hover:bg-gray-300 shadow-sm"
+                  }`}
+                  radius="lg"
+                >
+                  <CardBody className="flex items-center justify-center p-4">
+                    <span
+                      className={`text-center font-bold text-sm md:text-base lg:text-lg uppercase tracking-wide leading-none ${
+                        selectedWords.includes(word)
+                          ? "text-white"
+                          : "text-black"
+                      }`}
+                    >
+                      {word}
+                    </span>
+                  </CardBody>
+                </Card>
+              ))}
+            </div>
+
+            {/* Bottom centered row for additional words */}
+            {remainingWords.length > 16 && (
+              <div className="flex justify-center gap-3">
+                {remainingWords.slice(16).map((word, index) => (
                   <Card
-                    key={index}
+                    key={`extra-${index}`}
                     isPressable
                     onPress={() => handleWordClick(word)}
-                    className={`aspect-[5/4] transition-all cursor-pointer ${
+                    className={`aspect-[5/4] transition-all cursor-pointer w-full max-w-[calc(25%-0.75rem)] ${
                       selectedWords.includes(word)
                         ? "bg-gray-700 shadow-inner"
                         : "bg-gray-200 hover:bg-gray-300 shadow-sm"
@@ -451,41 +472,6 @@ export default function Home() {
                     </CardBody>
                   </Card>
                 ))}
-            </div>
-
-            {/* Last word centered at bottom when appropriate */}
-            {(remainingWords.length > 16 ||
-              (remainingWords.length % 4 === 1 &&
-                remainingWords.length > 1)) && (
-              <div className="flex justify-center">
-                <Card
-                  isPressable
-                  onPress={() =>
-                    handleWordClick(remainingWords[remainingWords.length - 1])
-                  }
-                  className={`aspect-[5/4] transition-all cursor-pointer w-full max-w-[calc(25%-0.75rem)] ${
-                    selectedWords.includes(
-                      remainingWords[remainingWords.length - 1]
-                    )
-                      ? "bg-gray-700 shadow-inner"
-                      : "bg-gray-200 hover:bg-gray-300 shadow-sm"
-                  }`}
-                  radius="lg"
-                >
-                  <CardBody className="flex items-center justify-center p-4">
-                    <span
-                      className={`text-center font-bold text-sm md:text-base lg:text-lg uppercase tracking-wide leading-none ${
-                        selectedWords.includes(
-                          remainingWords[remainingWords.length - 1]
-                        )
-                          ? "text-white"
-                          : "text-black"
-                      }`}
-                    >
-                      {remainingWords[remainingWords.length - 1]}
-                    </span>
-                  </CardBody>
-                </Card>
               </div>
             )}
           </div>

@@ -8,10 +8,23 @@ const config = {
     "./node_modules/@heroui/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'connections-green': '#a0c35a',
+        'connections-blue': '#b0c4ef',
+        'connections-purple': '#ba81c5',
+      },
+    },
   },
   darkMode: "class",
   plugins: [heroui],
+  safelist: [
+    'bg-amber-200',
+    'bg-[#a0c35a]',
+    'bg-[#b0c4ef]', 
+    'bg-[#ba81c5]',
+    'bg-red-500',
+  ],
 };
 
 export default config;
