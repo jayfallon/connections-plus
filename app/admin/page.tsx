@@ -1,7 +1,9 @@
 "use client";
 
-import { Card, CardBody, Button, Input, Select, SelectItem } from "@heroui/react";
+import { Card, CardBody, Button, Input, Select, SelectItem, DatePicker } from "@heroui/react";
 import { useState } from "react";
+import { format } from "date-fns";
+import { parseDate } from "@internationalized/date";
 
 interface WordGroup {
   category: string;
@@ -34,6 +36,8 @@ const difficulties = [
 ];
 
 export default function AdminPage() {
+  const [selectedDate, setSelectedDate] = useState(parseDate(format(new Date(), 'yyyy-MM-dd')));
+  const [puzzleTitle, setPuzzleTitle] = useState("");
   const [currentCategory, setCurrentCategory] = useState("");
   const [currentDifficulty, setCurrentDifficulty] = useState("");
   const [currentTitle, setCurrentTitle] = useState("");
@@ -164,69 +168,47 @@ export default function AdminPage() {
   };
 
   const exportConfig = async () => {
+    if (!puzzleTitle.trim()) {
+      alert("Please enter a title for your puzzle!");
+      return;
+    }
+
     // Create levels 1-4 using the new workflow
     const processedLevels = levels.map(level => {
       return {
-        id: level.id,
-        redHerring: level.redHerring || "",
-        groups: level.groups.reduce((acc, group, index) => {
-          const groupKey = `group${index + 1}`;
-          acc[groupKey] = {
-            words: group.words,
-            color: group.color,
-            difficulty: group.difficulty.split(" ")[0],
-            category: group.category,
-          };
-          return acc;
-        }, {} as any),
+        groups: level.groups.map(group => ({
+          title: group.category,
+          words: group.words,
+          color: group.color
+        })),
+        redHerring: level.redHerring || ""
       };
     });
 
     const gameConfig = {
       levels: processedLevels,
+      title: puzzleTitle.trim(),
+      date: selectedDate.toString()
     };
 
-    const configString = JSON.stringify(gameConfig, null, 2);
-    console.log("Game Config:", configString);
-
     try {
-      // Save to JSON file
       const response = await fetch('/api/save-config', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: configString,
+        body: JSON.stringify(gameConfig),
       });
 
       if (response.ok) {
         const result = await response.json();
-        alert(`Game config saved successfully as ${result.filename}!\nConfig also copied to clipboard.`);
-        
-        // Try to copy to clipboard as well
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(configString);
-        } else {
-          showConfigModal(configString);
-        }
+        alert(`Puzzle "${puzzleTitle}" saved successfully for ${format(new Date(selectedDate.toString()), 'PPPP')}!`);
       } else {
-        throw new Error('Failed to save config file');
+        throw new Error('Failed to save puzzle');
       }
     } catch (error) {
       console.error('Error saving config:', error);
-      alert('Failed to save config file, but copying to clipboard...');
-      
-      // Fallback to clipboard/modal
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(configString).then(() => {
-          alert("Game config copied to clipboard!");
-        }).catch(err => {
-          console.error('Failed to copy to clipboard:', err);
-          showConfigModal(configString);
-        });
-      } else {
-        showConfigModal(configString);
-      }
+      alert('Failed to save puzzle. Please try again.');
     }
   };
 
@@ -255,14 +237,58 @@ export default function AdminPage() {
     <div className="min-h-screen bg-white p-8">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <a
+              href="/calendar"
+              className="text-sm text-blue-600 hover:text-blue-800 underline"
+            >
+              ← Calendar View
+            </a>
+            <a
+              href="/"
+              className="text-sm text-blue-600 hover:text-blue-800 underline"
+            >
+              Play Game →
+            </a>
+          </div>
           <h1 className="text-4xl font-bold mb-2 text-black">Connections Plus Admin</h1>
           <p className="text-gray-600">
-            {currentLevel === 0 ? "First, create your red herring group" : `Generate word groups for Level ${currentLevel}`}
+            {currentLevel === 0 ? "First, set date and title, then create your red herring group" : `Generate word groups for Level ${currentLevel}`}
           </p>
         </div>
 
-        {/* Red Herring Group Creation (Step 0) */}
+        {/* Date and Title Selection */}
         {currentLevel === 0 && (
+          <Card className="mb-6">
+            <CardBody className="p-6">
+              <h2 className="text-2xl font-bold mb-4">Step 0: Puzzle Details</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <DatePicker
+                    label="Puzzle Date"
+                    value={selectedDate}
+                    onChange={setSelectedDate}
+                    description={format(new Date(selectedDate.toString()), 'PPPP')}
+                  />
+                </div>
+                
+                <div>
+                  <Input
+                    label="Puzzle Title"
+                    placeholder="e.g., Monday Madness, Weekend Challenge"
+                    value={puzzleTitle}
+                    onChange={(e) => setPuzzleTitle(e.target.value)}
+                    description="This will be shown to players"
+                  />
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        )}
+
+        {/* Red Herring Group Creation (Step 1) */}
+        {currentLevel === 0 && puzzleTitle.trim() && (
           <Card className="mb-6">
             <CardBody className="p-6">
               <h2 className="text-2xl font-bold mb-4">Step 1: Create Red Herring Group</h2>
@@ -301,7 +327,7 @@ export default function AdminPage() {
                 <Button
                   onPress={createRedHerringGroup}
                   className="bg-red-600 text-white px-8"
-                  isDisabled={[redHerringWords.word1, redHerringWords.word2, redHerringWords.word3, redHerringWords.word4].filter(w => w.trim() !== "").length !== 4}
+                  isDisabled={!puzzleTitle.trim() || [redHerringWords.word1, redHerringWords.word2, redHerringWords.word3, redHerringWords.word4].filter(w => w.trim() !== "").length !== 4}
                 >
                   Create "Double Meanings" Group
                 </Button>

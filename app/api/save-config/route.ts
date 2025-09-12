@@ -1,30 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
+import { saveGameConfig, getTodayGameId, GameConfig } from '@/lib/redis';
 
 export async function POST(request: NextRequest) {
   try {
-    const gameConfig = await request.json();
+    const gameData = await request.json();
 
-    if (!gameConfig || !gameConfig.levels) {
+    if (!gameData || !gameData.levels || !gameData.title || !gameData.date) {
       return NextResponse.json(
-        { error: 'Invalid game config format' },
+        { error: 'Invalid game config format - missing required fields' },
         { status: 400 }
       );
     }
 
-    // Generate filename with timestamp
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-    const filename = `game-config-${timestamp}.json`;
-    const filepath = join(process.cwd(), 'public', 'configs', filename);
+    const gameConfig: GameConfig = {
+      id: gameData.date,
+      date: gameData.date,
+      title: gameData.title,
+      levels: gameData.levels
+    };
 
-    // Save the config file
-    await writeFile(filepath, JSON.stringify(gameConfig, null, 2), 'utf8');
+    await saveGameConfig(gameConfig);
 
     return NextResponse.json({
       success: true,
-      filename,
-      path: `/configs/${filename}`
+      gameId: gameData.date,
+      date: gameData.date,
+      title: gameData.title
     });
 
   } catch (error) {

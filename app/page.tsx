@@ -2,131 +2,21 @@
 
 import { Card, CardBody, Button } from "@heroui/react";
 import { useState, useEffect } from "react";
+import { getPlayerId, canPlayToday, markTodayAsPlayed } from "@/lib/player";
 
-const gameConfig = {
-  levels: [
-    {
-      id: 1,
-      redHerring: "PARKER",
-      groups: {
-        group1: {
-          words: ["PETER", "JOHN", "MATTHEW", "ANDREW"],
-          color: "bg-amber-200",
-          difficulty: "Yellow",
-          category: "APOSTLES",
-        },
-        group2: {
-          words: ["HEART", "STAR", "CIRCLE", "SQUARE"],
-          color: "bg-[#a0c35a]",
-          difficulty: "Green",
-          category: "SYMBOLS NOT CROSS",
-        },
-        group3: {
-          words: ["PERIWINKLE", "MAIZE", "CERULEAN", "THISTLE"],
-          color: "bg-[#b0c4ef]",
-          difficulty: "Blue",
-          category: "CRAYONS",
-        },
-        group4: {
-          words: ["VIZSLA", "KOMONDOR", "XOLO", "KUVASZ"],
-          color: "bg-[#ba81c5]",
-          difficulty: "Purple",
-          category: "DOG BREEDS",
-        },
-      },
-    },
-    {
-      id: 2,
-      redHerring: "MONTBLANC",
-      groups: {
-        group1: {
-          words: ["EVEREST", "DENALI", "KILIMANJARO", "FUJI"],
-          color: "bg-amber-200",
-          difficulty: "Yellow",
-          category: "MOUNTAIN NAMES",
-        },
-        group2: {
-          words: ["NILE", "THAMES", "DANUBE", "VOLGA"],
-          color: "bg-[#a0c35a]",
-          difficulty: "Green",
-          category: "RIVER NAMES",
-        },
-        group3: {
-          words: ["DUNGENESS", "HERMIT", "FIDDLER", "HORSESHOE"],
-          color: "bg-[#b0c4ef]",
-          difficulty: "Blue",
-          category: "CRAB TYPES",
-        },
-        group4: {
-          words: ["HONSHU", "KYUSHU", "SHIKOKU", "HOKKAIDO"],
-          color: "bg-[#ba81c5]",
-          difficulty: "Purple",
-          category: "JAPANESE ISLANDS",
-        },
-      },
-    },
-    {
-      id: 3,
-      redHerring: "CROSS",
-      groups: {
-        group1: {
-          words: ["BELLHOP", "CONCIERGE", "DOORMAN", "HOUSEKEEPER"],
-          color: "bg-amber-200",
-          difficulty: "Yellow",
-          category: "HOSPITALITY JOBS",
-        },
-        group2: {
-          words: ["MIDWIFE", "MATRON", "PEDIATRIC", "HOSPICE"],
-          color: "bg-[#a0c35a]",
-          difficulty: "Green",
-          category: "NURSING JOBS",
-        },
-        group3: {
-          words: ["KARATE", "JUDO", "SUMO", "KENDO"],
-          color: "bg-[#b0c4ef]",
-          difficulty: "Blue",
-          category: "COMBAT SPORTS",
-        },
-        group4: {
-          words: ["PIERCE", "GRANT", "BUSH", "POLK"],
-          color: "bg-[#ba81c5]",
-          difficulty: "Purple",
-          category: "PRESIDENT'S LAST NAMES",
-        },
-      },
-    },
-    {
-      id: 4,
-      redHerring: "",
-      groups: {
-        group1: {
-          words: ["OGUNQUIT", "WELLS", "POPHAM", "HIGGINS"],
-          color: "bg-amber-200",
-          difficulty: "Yellow",
-          category: "MAINE BEACHES",
-        },
-        group2: {
-          words: ["KORMA", "VINDALOO", "TIKKA", "MADRAS"],
-          color: "bg-[#a0c35a]",
-          difficulty: "Green",
-          category: "CURRY NAMES",
-        },
-        group3: {
-          words: ["RATATOUILLE", "CASSOULET", "BOUILLABAISSE", "QUICHE"],
-          color: "bg-[#b0c4ef]",
-          difficulty: "Blue",
-          category: "FRENCH DISHES",
-        },
-        group4: {
-          words: ["PARKER", "MONTBLANC", "CROSS", "CARAN D'ACHE"],
-          color: "bg-red-500",
-          difficulty: "Ultimate",
-          category: "DOUBLE MEANINGS",
-        },
-      },
-    },
-  ],
-};
+interface GameData {
+  gameId: string;
+  date: string;
+  title: string;
+  levels: Array<{
+    groups: Array<{
+      title: string;
+      words: string[];
+      color: string;
+    }>;
+    redHerring: string;
+  }>;
+}
 
 export default function Home() {
   const [selectedWords, setSelectedWords] = useState<string[]>([]);
@@ -136,14 +26,50 @@ export default function Home() {
   const [shuffledWords, setShuffledWords] = useState<string[]>([]);
   const [gameComplete, setGameComplete] = useState(false);
   const [currentLevel, setCurrentLevel] = useState(1);
-  const [accumulatedRedHerrings, setAccumulatedRedHerrings] = useState<
-    string[]
-  >([]);
+  const [accumulatedRedHerrings, setAccumulatedRedHerrings] = useState<string[]>([]);
   const [allLevelsComplete, setAllLevelsComplete] = useState(false);
+  const [gameData, setGameData] = useState<GameData | null>(null);
+  const [playerId, setPlayerId] = useState<string>("");
+  const [canPlay, setCanPlay] = useState(true);
+  const [loading, setLoading] = useState(true);
+
+  // Initialize player and check if they can play
+  useEffect(() => {
+    const initializeGame = async () => {
+      const id = getPlayerId();
+      setPlayerId(id);
+
+      // Check if player can play today
+      const canPlayCheck = canPlayToday();
+      
+      if (!canPlayCheck) {
+        setCanPlay(false);
+        setLoading(false);
+        return;
+      }
+
+      // Fetch today's game
+      try {
+        const response = await fetch('/api/game');
+        if (response.ok) {
+          const data = await response.json();
+          setGameData(data);
+        } else {
+          setFeedback("No game available for today. Check back later!");
+        }
+      } catch (error) {
+        setFeedback("Failed to load today's game");
+      }
+      
+      setLoading(false);
+    };
+
+    initializeGame();
+  }, []);
 
   // Get current level configuration
   const getCurrentLevel = () =>
-    gameConfig.levels.find((level) => level.id === currentLevel);
+    gameData?.levels.find((_, index) => index + 1 === currentLevel);
   const currentLevelConfig = getCurrentLevel();
 
   // Build current words array (level words + accumulated red herrings + current red herring)
@@ -151,7 +77,7 @@ export default function Home() {
     if (!currentLevelConfig) return [];
 
     const levelWords: string[] = [];
-    Object.values(currentLevelConfig.groups).forEach((group) => {
+    currentLevelConfig.groups.forEach((group) => {
       levelWords.push(...group.words);
     });
 
@@ -241,48 +167,80 @@ export default function Home() {
     }
   };
 
-  const submitGuess = () => {
+  const submitGuess = async () => {
     if (selectedWords.length !== 4 || !currentLevelConfig) return;
 
     // Check if selected words form a correct group
     const selectedSet = new Set(selectedWords);
-    let correctGroup = null;
+    let correctGroupIndex = -1;
 
-    for (const [groupName, groupData] of Object.entries(
-      currentLevelConfig.groups
-    )) {
-      const groupSet = new Set(groupData.words);
+    for (let i = 0; i < currentLevelConfig.groups.length; i++) {
+      const group = currentLevelConfig.groups[i];
+      const groupSet = new Set(group.words);
       if (
         selectedSet.size === groupSet.size &&
         [...selectedSet].every((word) => groupSet.has(word))
       ) {
-        correctGroup = groupName;
+        correctGroupIndex = i;
         break;
       }
     }
 
-    if (correctGroup) {
+    if (correctGroupIndex !== -1) {
       // Correct guess
-      const newSolvedGroups = [...solvedGroups, correctGroup];
+      const newSolvedGroups = [...solvedGroups, correctGroupIndex.toString()];
       setSolvedGroups(newSolvedGroups);
       setSelectedWords([]);
 
-      const groupData =
-        currentLevelConfig.groups[
-          correctGroup as keyof typeof currentLevelConfig.groups
-        ];
+      const groupData = currentLevelConfig.groups[correctGroupIndex];
       setFeedback(
-        `Correct! You found the ${groupData?.category || correctGroup} group!`
+        `Correct! You found the ${groupData.title} group!`
       );
 
+      // Save progress
+      try {
+        await fetch('/api/game', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            playerId,
+            gameId: gameData?.gameId,
+            currentLevel,
+            completedGroups: [...solvedGroups, selectedWords],
+            mistakes: 4 - mistakesRemaining
+          })
+        });
+      } catch (error) {
+        console.error('Failed to save progress:', error);
+      }
+
       // Check for level completion
-      const totalGroupsInLevel = Object.keys(currentLevelConfig.groups).length;
+      const totalGroupsInLevel = currentLevelConfig.groups.length;
       if (newSolvedGroups.length === totalGroupsInLevel) {
         setGameComplete(true);
 
         // Level-specific completion logic
         if (currentLevel === 4) {
-          // Final level completed
+          // Final level completed - mark as played and save final progress
+          markTodayAsPlayed();
+          try {
+            await fetch('/api/game', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                playerId,
+                gameId: gameData?.gameId,
+                currentLevel,
+                completedGroups: [...solvedGroups, selectedWords],
+                mistakes: 4 - mistakesRemaining,
+                completed: true,
+                perfect: mistakesRemaining === 4
+              })
+            });
+          } catch (error) {
+            console.error('Failed to save final progress:', error);
+          }
+
           setTimeout(() => {
             advanceToNextLevel(); // This will set allLevelsComplete
           }, 1500);
@@ -323,6 +281,26 @@ export default function Home() {
       setMistakesRemaining((prev) => prev - 1);
       setSelectedWords([]);
       setFeedback("Not quite right. Try again!");
+
+      // Save progress with mistake
+      try {
+        await fetch('/api/game', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            playerId,
+            gameId: gameData?.gameId,
+            currentLevel,
+            completedGroups: solvedGroups.map(groupId => {
+              const idx = parseInt(groupId);
+              return currentLevelConfig.groups[idx]?.words || [];
+            }),
+            mistakes: 4 - mistakesRemaining + 1
+          })
+        });
+      } catch (error) {
+        console.error('Failed to save progress:', error);
+      }
     }
 
     // Clear feedback after 2 seconds
@@ -334,11 +312,9 @@ export default function Home() {
     if (!currentLevelConfig) return new Set();
 
     const solvedWords = new Set();
-    solvedGroups.forEach((groupName) => {
-      const group =
-        currentLevelConfig.groups[
-          groupName as keyof typeof currentLevelConfig.groups
-        ];
+    solvedGroups.forEach((groupId) => {
+      const groupIndex = parseInt(groupId);
+      const group = currentLevelConfig.groups[groupIndex];
       if (group) {
         group.words.forEach((word) => solvedWords.add(word));
       }
@@ -349,6 +325,42 @@ export default function Home() {
   const solvedWords = getSolvedWords();
   const remainingWords = shuffledWords.filter((word) => !solvedWords.has(word));
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white p-2 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-xl font-medium text-gray-600 mb-4">Loading today's puzzle...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Can't play today
+  if (!canPlay) {
+    return (
+      <div className="min-h-screen bg-white p-2 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4 text-black">Come back tomorrow!</h1>
+          <p className="text-lg text-gray-600">You've already completed today's puzzle.</p>
+          <p className="text-md text-gray-500 mt-2">New puzzle available at midnight UTC.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // No game data
+  if (!gameData) {
+    return (
+      <div className="min-h-screen bg-white p-2 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4 text-black">No puzzle available</h1>
+          <p className="text-lg text-gray-600">{feedback || "Check back later!"}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white p-2">
       <div className="max-w-2xl mx-auto">
@@ -358,13 +370,27 @@ export default function Home() {
             <span className="text-lg text-gray-600">
               Level {currentLevel} of 4
             </span>
-            <a
-              href="/admin"
-              className="text-sm text-blue-600 hover:text-blue-800 underline"
-            >
-              Admin Panel
-            </a>
+            <div className="flex gap-4">
+              <a
+                href="/calendar"
+                className="text-sm text-blue-600 hover:text-blue-800 underline"
+              >
+                Calendar
+              </a>
+              <a
+                href="/admin"
+                className="text-sm text-blue-600 hover:text-blue-800 underline"
+              >
+                Admin Panel
+              </a>
+            </div>
           </div>
+
+          {gameData?.title && (
+            <div className="mb-2">
+              <span className="text-lg text-blue-600 font-medium">{gameData.title}</span>
+            </div>
+          )}
 
           <h1 className="text-3xl font-bold mb-4 text-black">
             {currentLevel === 4
@@ -389,20 +415,18 @@ export default function Home() {
         {/* Solved groups */}
         {solvedGroups.length > 0 && currentLevelConfig && (
           <div className="space-y-3 mb-6">
-            {solvedGroups.map((groupName) => {
-              const group =
-                currentLevelConfig.groups[
-                  groupName as keyof typeof currentLevelConfig.groups
-                ];
+            {solvedGroups.map((groupId) => {
+              const groupIndex = parseInt(groupId);
+              const group = currentLevelConfig.groups[groupIndex];
               if (!group) return null;
 
               return (
                 <div
-                  key={groupName}
+                  key={groupId}
                   className={`${group.color} rounded-lg p-6 text-center`}
                 >
                   <div className="font-bold text-xl text-black uppercase tracking-wide mb-2">
-                    {group.category}
+                    {group.title}
                   </div>
                   <div className="font-semibold text-lg text-black uppercase tracking-wide">
                     {group.words.join(", ")}
