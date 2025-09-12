@@ -7,45 +7,125 @@ const gameConfig = {
   levels: [
     {
       id: 1,
-      redHerring: "ORANGE",
+      redHerring: "PARKER",
       groups: {
-        fish: { words: ["BASS", "FLOUNDER", "SALMON", "TROUT"], color: "bg-yellow-400", difficulty: "Easiest", category: "FISH" },
-        fruits: { words: ["APPLE", "BANANA", "CHERRY", "GRAPE"], color: "bg-green-400", difficulty: "Easy", category: "FRUITS" },
-        instruments: { words: ["GUITAR", "PIANO", "VIOLIN", "DRUMS"], color: "bg-blue-400", difficulty: "Medium", category: "INSTRUMENTS" },
-        colors: { words: ["RED", "BLUE", "GREEN", "YELLOW"], color: "bg-purple-400", difficulty: "Hard", category: "COLORS" }
-      }
+        group1: {
+          words: ["PETER", "JOHN", "MATTHEW", "ANDREW"],
+          color: "bg-yellow-400",
+          difficulty: "Yellow",
+          category: "APOSTLES",
+        },
+        group2: {
+          words: ["HEART", "STAR", "CIRCLE", "SQUARE"],
+          color: "bg-green-400",
+          difficulty: "Green",
+          category: "SYMBOLS NOT CROSS",
+        },
+        group3: {
+          words: ["PERIWINKLE", "MAIZE", "CERULEAN", "THISTLE"],
+          color: "bg-blue-400",
+          difficulty: "Blue",
+          category: "CRAYONS",
+        },
+        group4: {
+          words: ["VIZSLA", "KOMONDOR", "XOLO", "KUVASZ"],
+          color: "bg-purple-400",
+          difficulty: "Purple",
+          category: "DOG BREEDS",
+        },
+      },
     },
     {
       id: 2,
-      redHerring: "SPRING",
+      redHerring: "MONTBLANC",
       groups: {
-        metals: { words: ["GOLD", "SILVER", "COPPER", "IRON"], color: "bg-yellow-400", difficulty: "Easiest", category: "METALS" },
-        weather: { words: ["RAIN", "SNOW", "HAIL", "SLEET"], color: "bg-green-400", difficulty: "Easy", category: "WEATHER" },
-        vehicles: { words: ["CAR", "TRUCK", "BUS", "VAN"], color: "bg-blue-400", difficulty: "Medium", category: "VEHICLES" },
-        planets: { words: ["MARS", "VENUS", "EARTH", "JUPITER"], color: "bg-purple-400", difficulty: "Hard", category: "PLANETS" }
-      }
+        group1: {
+          words: ["EVEREST", "DENALI", "KILIMANJARO", "FUJI"],
+          color: "bg-yellow-400",
+          difficulty: "Yellow",
+          category: "MOUNTAIN NAMES",
+        },
+        group2: {
+          words: ["NILE", "THAMES", "DANUBE", "VOLGA"],
+          color: "bg-green-400",
+          difficulty: "Green",
+          category: "RIVER NAMES",
+        },
+        group3: {
+          words: ["DUNGENESS", "HERMIT", "FIDDLER", "HORSESHOE"],
+          color: "bg-blue-400",
+          difficulty: "Blue",
+          category: "CRAB TYPES",
+        },
+        group4: {
+          words: ["HONSHU", "KYUSHU", "SHIKOKU", "HOKKAIDO"],
+          color: "bg-purple-400",
+          difficulty: "Purple",
+          category: "JAPANESE ISLANDS",
+        },
+      },
     },
     {
       id: 3,
-      redHerring: "BANK",
+      redHerring: "PARKER",
       groups: {
-        shapes: { words: ["CIRCLE", "SQUARE", "TRIANGLE", "OVAL"], color: "bg-yellow-400", difficulty: "Easiest", category: "SHAPES" },
-        animals: { words: ["DOG", "CAT", "BIRD", "FISH"], color: "bg-green-400", difficulty: "Easy", category: "ANIMALS" },
-        sports: { words: ["SOCCER", "TENNIS", "GOLF", "HOCKEY"], color: "bg-blue-400", difficulty: "Medium", category: "SPORTS" },
-        emotions: { words: ["HAPPY", "SAD", "ANGRY", "CALM"], color: "bg-purple-400", difficulty: "Hard", category: "EMOTIONS" }
-      }
+        group1: {
+          words: ["BELLHOP", "CONCIERGE", "DOORMAN", "HOUSEKEEPER"],
+          color: "bg-yellow-400",
+          difficulty: "Yellow",
+          category: "HOSPITALITY JOBS",
+        },
+        group2: {
+          words: ["MIDWIFE", "MATRON", "PEDIATRIC", "HOSPICE"],
+          color: "bg-green-400",
+          difficulty: "Green",
+          category: "NURSING JOBS",
+        },
+        group3: {
+          words: ["KARATE", "JUDO", "SUMO", "KENDO"],
+          color: "bg-blue-400",
+          difficulty: "Blue",
+          category: "COMBAT SPORTS",
+        },
+        group4: {
+          words: ["PIERCE", "GRANT", "BUSH", "POLK"],
+          color: "bg-purple-400",
+          difficulty: "Purple",
+          category: "PRESIDENT'S LAST NAMES",
+        },
+      },
     },
     {
       id: 4,
-      redHerring: "POUND", // This will complete the red herring group
+      redHerring: "",
       groups: {
-        furniture: { words: ["CHAIR", "TABLE", "SOFA", "DESK"], color: "bg-yellow-400", difficulty: "Easiest", category: "FURNITURE" },
-        foods: { words: ["BREAD", "PASTA", "RICE", "SOUP"], color: "bg-green-400", difficulty: "Easy", category: "FOODS" },
-        tools: { words: ["HAMMER", "SAW", "DRILL", "WRENCH"], color: "bg-blue-400", difficulty: "Medium", category: "TOOLS" },
-        redHerrings: { words: ["ORANGE", "SPRING", "BANK", "POUND"], color: "bg-red-500", difficulty: "Ultimate", category: "DOUBLE MEANINGS" }
-      }
-    }
-  ]
+        group1: {
+          words: ["OGUNQUIT", "WELLS", "POPHAM", "HIGGINS"],
+          color: "bg-yellow-400",
+          difficulty: "Yellow",
+          category: "MAINE BEACHES",
+        },
+        group2: {
+          words: ["KORMA", "VINDALOO", "TIKKA", "MADRAS"],
+          color: "bg-green-400",
+          difficulty: "Green",
+          category: "CURRY NAMES",
+        },
+        group3: {
+          words: ["RATATOUILLE", "CASSOULET", "BOUILLABAISSE", "QUICHE"],
+          color: "bg-blue-400",
+          difficulty: "Blue",
+          category: "FRENCH DISHES",
+        },
+        group4: {
+          words: ["MONTBLANC", "CARAN D'ACHE", "PARKER", "CROSS"],
+          color: "bg-red-500",
+          difficulty: "Ultimate",
+          category: "DOUBLE MEANINGS",
+        },
+      },
+    },
+  ],
 };
 
 export default function Home() {
@@ -56,29 +136,36 @@ export default function Home() {
   const [shuffledWords, setShuffledWords] = useState<string[]>([]);
   const [gameComplete, setGameComplete] = useState(false);
   const [currentLevel, setCurrentLevel] = useState(1);
-  const [accumulatedRedHerrings, setAccumulatedRedHerrings] = useState<string[]>([]);
+  const [accumulatedRedHerrings, setAccumulatedRedHerrings] = useState<
+    string[]
+  >([]);
   const [allLevelsComplete, setAllLevelsComplete] = useState(false);
 
   // Get current level configuration
-  const getCurrentLevel = () => gameConfig.levels.find(level => level.id === currentLevel);
+  const getCurrentLevel = () =>
+    gameConfig.levels.find((level) => level.id === currentLevel);
   const currentLevelConfig = getCurrentLevel();
-  
+
   // Build current words array (level words + accumulated red herrings + current red herring)
   const getCurrentWords = () => {
     if (!currentLevelConfig) return [];
-    
+
     const levelWords: string[] = [];
-    Object.values(currentLevelConfig.groups).forEach(group => {
+    Object.values(currentLevelConfig.groups).forEach((group) => {
       levelWords.push(...group.words);
     });
-    
+
     // For final level, red herrings are part of the groups, not separate
     if (currentLevel === 4) {
       return levelWords;
     }
-    
+
     // For levels 1-3, add accumulated red herrings + current level's red herring
-    return [...levelWords, ...accumulatedRedHerrings, currentLevelConfig.redHerring];
+    return [
+      ...levelWords,
+      ...accumulatedRedHerrings,
+      currentLevelConfig.redHerring,
+    ];
   };
 
   // Shuffle words on level change
@@ -98,10 +185,8 @@ export default function Home() {
   }, [currentLevel, accumulatedRedHerrings]);
 
   const handleWordClick = (word: string) => {
-    setSelectedWords(prev => 
-      prev.includes(word) 
-        ? prev.filter(w => w !== word)
-        : [...prev, word]
+    setSelectedWords((prev) =>
+      prev.includes(word) ? prev.filter((w) => w !== word) : [...prev, word]
     );
   };
 
@@ -132,18 +217,27 @@ export default function Home() {
 
   const advanceToNextLevel = () => {
     if (!currentLevelConfig) return;
-    
+
     // Add current red herring to accumulated list (except for level 4)
     if (currentLevel < 4) {
-      setAccumulatedRedHerrings(prev => [...prev, currentLevelConfig.redHerring]);
+      setAccumulatedRedHerrings((prev) => [
+        ...prev,
+        currentLevelConfig.redHerring,
+      ]);
     }
-    
+
     if (currentLevel < 4) {
-      setCurrentLevel(prev => prev + 1);
-      setFeedback(`Level ${currentLevel} complete! Advancing to Level ${currentLevel + 1}...`);
+      setCurrentLevel((prev) => prev + 1);
+      setFeedback(
+        `Level ${currentLevel} complete! Advancing to Level ${
+          currentLevel + 1
+        }...`
+      );
     } else {
       setAllLevelsComplete(true);
-      setFeedback("🎉 INCREDIBLE! You discovered the secret red herring group!");
+      setFeedback(
+        "🎉 INCREDIBLE! You discovered the secret red herring group!"
+      );
     }
   };
 
@@ -154,10 +248,14 @@ export default function Home() {
     const selectedSet = new Set(selectedWords);
     let correctGroup = null;
 
-    for (const [groupName, groupData] of Object.entries(currentLevelConfig.groups)) {
+    for (const [groupName, groupData] of Object.entries(
+      currentLevelConfig.groups
+    )) {
       const groupSet = new Set(groupData.words);
-      if (selectedSet.size === groupSet.size && 
-          [...selectedSet].every(word => groupSet.has(word))) {
+      if (
+        selectedSet.size === groupSet.size &&
+        [...selectedSet].every((word) => groupSet.has(word))
+      ) {
         correctGroup = groupName;
         break;
       }
@@ -168,15 +266,20 @@ export default function Home() {
       const newSolvedGroups = [...solvedGroups, correctGroup];
       setSolvedGroups(newSolvedGroups);
       setSelectedWords([]);
-      
-      const groupData = currentLevelConfig.groups[correctGroup as keyof typeof currentLevelConfig.groups];
-      setFeedback(`Correct! You found the ${groupData?.category || correctGroup} group!`);
-      
+
+      const groupData =
+        currentLevelConfig.groups[
+          correctGroup as keyof typeof currentLevelConfig.groups
+        ];
+      setFeedback(
+        `Correct! You found the ${groupData?.category || correctGroup} group!`
+      );
+
       // Check for level completion
       const totalGroupsInLevel = Object.keys(currentLevelConfig.groups).length;
       if (newSolvedGroups.length === totalGroupsInLevel) {
         setGameComplete(true);
-        
+
         // Level-specific completion logic
         if (currentLevel === 4) {
           // Final level completed
@@ -188,20 +291,36 @@ export default function Home() {
           const mistakesMade = 4 - mistakesRemaining;
           let rating = "";
           switch (mistakesMade) {
-            case 0: rating = "Perfect!"; break;
-            case 1: rating = "Great!"; break;
-            case 2: rating = "Okay"; break;
-            case 3: rating = "Not bad"; break;
-            case 4: rating = "Charity case"; break;
-            default: rating = "Complete!"; break;
+            case 0:
+              rating = "Perfect!";
+              break;
+            case 1:
+              rating = "Great!";
+              break;
+            case 2:
+              rating = "Okay";
+              break;
+            case 3:
+              rating = "Not bad";
+              break;
+            case 4:
+              rating = "Charity case";
+              break;
+            default:
+              rating = "Complete!";
+              break;
           }
-          setFeedback(`${rating} Level ${currentLevel} complete with ${mistakesMade} mistake${mistakesMade !== 1 ? 's' : ''}!`);
+          setFeedback(
+            `${rating} Level ${currentLevel} complete with ${mistakesMade} mistake${
+              mistakesMade !== 1 ? "s" : ""
+            }!`
+          );
         }
         return; // Don't clear feedback for win condition
       }
     } else {
       // Incorrect guess
-      setMistakesRemaining(prev => prev - 1);
+      setMistakesRemaining((prev) => prev - 1);
       setSelectedWords([]);
       setFeedback("Not quite right. Try again!");
     }
@@ -213,19 +332,22 @@ export default function Home() {
   // Filter out words that are already solved
   const getSolvedWords = () => {
     if (!currentLevelConfig) return new Set();
-    
+
     const solvedWords = new Set();
-    solvedGroups.forEach(groupName => {
-      const group = currentLevelConfig.groups[groupName as keyof typeof currentLevelConfig.groups];
+    solvedGroups.forEach((groupName) => {
+      const group =
+        currentLevelConfig.groups[
+          groupName as keyof typeof currentLevelConfig.groups
+        ];
       if (group) {
-        group.words.forEach(word => solvedWords.add(word));
+        group.words.forEach((word) => solvedWords.add(word));
       }
     });
     return solvedWords;
   };
-  
+
   const solvedWords = getSolvedWords();
-  const remainingWords = shuffledWords.filter(word => !solvedWords.has(word));
+  const remainingWords = shuffledWords.filter((word) => !solvedWords.has(word));
 
   return (
     <div className="min-h-screen bg-white p-8">
@@ -233,24 +355,32 @@ export default function Home() {
         <div className="text-center mb-8">
           {/* Level indicator */}
           <div className="mb-4 flex justify-between items-center">
-            <span className="text-lg text-gray-600">Level {currentLevel} of 4</span>
-            <a 
-              href="/admin" 
+            <span className="text-lg text-gray-600">
+              Level {currentLevel} of 4
+            </span>
+            <a
+              href="/admin"
               className="text-sm text-blue-600 hover:text-blue-800 underline"
             >
               Admin Panel
             </a>
           </div>
-          
+
           <h1 className="text-3xl font-bold mb-4 text-black">
-            {currentLevel === 4 ? "Final Challenge: Find the secret group!" : "Create four groups of four!"}
+            {currentLevel === 4
+              ? "Final Challenge: Find the secret group!"
+              : "Create four groups of four!"}
           </h1>
           {feedback && (
-            <div className={`text-lg font-medium ${
-              feedback.includes("Correct") || feedback.includes("INCREDIBLE") || feedback.includes("Level") 
-                ? "text-green-600" 
-                : "text-red-600"
-            }`}>
+            <div
+              className={`text-lg font-medium ${
+                feedback.includes("Correct") ||
+                feedback.includes("INCREDIBLE") ||
+                feedback.includes("Level")
+                  ? "text-green-600"
+                  : "text-red-600"
+              }`}
+            >
               {feedback}
             </div>
           )}
@@ -260,9 +390,12 @@ export default function Home() {
         {solvedGroups.length > 0 && currentLevelConfig && (
           <div className="space-y-3 mb-6">
             {solvedGroups.map((groupName) => {
-              const group = currentLevelConfig.groups[groupName as keyof typeof currentLevelConfig.groups];
+              const group =
+                currentLevelConfig.groups[
+                  groupName as keyof typeof currentLevelConfig.groups
+                ];
               if (!group) return null;
-              
+
               return (
                 <div
                   key={groupName}
@@ -279,55 +412,76 @@ export default function Home() {
             })}
           </div>
         )}
-        
+
         {!gameComplete && (
           <div className="mb-6">
             {/* Words in 4x4 grid, excluding the last word if it should be centered */}
             <div className="grid grid-cols-4 gap-3 mb-3">
-              {remainingWords.slice(0, 
-                (remainingWords.length > 16 || (remainingWords.length % 4 === 1 && remainingWords.length > 1)) 
-                  ? remainingWords.length - 1 
-                  : remainingWords.length
-              ).map((word, index) => (
-                <Card 
-                  key={index}
-                  isPressable
-                  onPress={() => handleWordClick(word)}
-                  className={`aspect-[5/4] transition-all cursor-pointer ${
-                    selectedWords.includes(word) 
-                      ? 'bg-gray-700 shadow-inner' 
-                      : 'bg-gray-200 hover:bg-gray-300 shadow-sm'
-                  }`}
-                  radius="lg"
-                >
-                  <CardBody className="flex items-center justify-center p-4">
-                    <span className={`text-center font-bold text-lg uppercase tracking-wide leading-none ${
-                      selectedWords.includes(word) ? 'text-white' : 'text-black'
-                    }`}>
-                      {word}
-                    </span>
-                  </CardBody>
-                </Card>
-              ))}
+              {remainingWords
+                .slice(
+                  0,
+                  remainingWords.length > 16 ||
+                    (remainingWords.length % 4 === 1 &&
+                      remainingWords.length > 1)
+                    ? remainingWords.length - 1
+                    : remainingWords.length
+                )
+                .map((word, index) => (
+                  <Card
+                    key={index}
+                    isPressable
+                    onPress={() => handleWordClick(word)}
+                    className={`aspect-[5/4] transition-all cursor-pointer ${
+                      selectedWords.includes(word)
+                        ? "bg-gray-700 shadow-inner"
+                        : "bg-gray-200 hover:bg-gray-300 shadow-sm"
+                    }`}
+                    radius="lg"
+                  >
+                    <CardBody className="flex items-center justify-center p-4">
+                      <span
+                        className={`text-center font-bold text-sm md:text-base lg:text-lg uppercase tracking-wide leading-none ${
+                          selectedWords.includes(word)
+                            ? "text-white"
+                            : "text-black"
+                        }`}
+                      >
+                        {word}
+                      </span>
+                    </CardBody>
+                  </Card>
+                ))}
             </div>
-            
+
             {/* Last word centered at bottom when appropriate */}
-            {(remainingWords.length > 16 || (remainingWords.length % 4 === 1 && remainingWords.length > 1)) && (
+            {(remainingWords.length > 16 ||
+              (remainingWords.length % 4 === 1 &&
+                remainingWords.length > 1)) && (
               <div className="flex justify-center">
-                <Card 
+                <Card
                   isPressable
-                  onPress={() => handleWordClick(remainingWords[remainingWords.length - 1])}
+                  onPress={() =>
+                    handleWordClick(remainingWords[remainingWords.length - 1])
+                  }
                   className={`aspect-[5/4] transition-all cursor-pointer w-full max-w-[calc(25%-0.75rem)] ${
-                    selectedWords.includes(remainingWords[remainingWords.length - 1]) 
-                      ? 'bg-gray-700 shadow-inner' 
-                      : 'bg-gray-200 hover:bg-gray-300 shadow-sm'
+                    selectedWords.includes(
+                      remainingWords[remainingWords.length - 1]
+                    )
+                      ? "bg-gray-700 shadow-inner"
+                      : "bg-gray-200 hover:bg-gray-300 shadow-sm"
                   }`}
                   radius="lg"
                 >
                   <CardBody className="flex items-center justify-center p-4">
-                    <span className={`text-center font-bold text-lg uppercase tracking-wide leading-none ${
-                      selectedWords.includes(remainingWords[remainingWords.length - 1]) ? 'text-white' : 'text-black'
-                    }`}>
+                    <span
+                      className={`text-center font-bold text-sm md:text-base lg:text-lg uppercase tracking-wide leading-none ${
+                        selectedWords.includes(
+                          remainingWords[remainingWords.length - 1]
+                        )
+                          ? "text-white"
+                          : "text-black"
+                      }`}
+                    >
                       {remainingWords[remainingWords.length - 1]}
                     </span>
                   </CardBody>
@@ -336,22 +490,22 @@ export default function Home() {
             )}
           </div>
         )}
-        
+
         <div className="text-center space-y-6">
           <div className="flex justify-center items-center gap-2">
             <span className="text-black font-medium">Mistakes remaining:</span>
             <div className="flex gap-1">
               {[...Array(4)].map((_, i) => (
-                <div 
+                <div
                   key={i}
                   className={`w-4 h-4 rounded-full ${
-                    i < mistakesRemaining ? 'bg-gray-600' : 'bg-gray-300'
+                    i < mistakesRemaining ? "bg-gray-600" : "bg-gray-300"
                   }`}
                 />
               ))}
             </div>
           </div>
-          
+
           <div className="flex justify-center gap-4">
             {allLevelsComplete ? (
               <Button
@@ -369,7 +523,9 @@ export default function Home() {
               </Button>
             ) : gameComplete && currentLevel === 4 ? (
               <div className="text-center">
-                <div className="text-green-600 font-bold mb-4">🎉 All Levels Complete! 🎉</div>
+                <div className="text-green-600 font-bold mb-4">
+                  🎉 All Levels Complete! 🎉
+                </div>
                 <Button
                   onPress={startNewGame}
                   className="px-8 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700"
@@ -398,8 +554,8 @@ export default function Home() {
                   isDisabled={selectedWords.length !== 4}
                   className={`px-8 py-3 font-semibold rounded-full ${
                     selectedWords.length === 4
-                      ? 'bg-black text-white hover:bg-gray-800'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      ? "bg-black text-white hover:bg-gray-800"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   }`}
                 >
                   Submit

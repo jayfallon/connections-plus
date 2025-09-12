@@ -36,25 +36,30 @@ const difficulties = [
 export default function AdminPage() {
   const [currentCategory, setCurrentCategory] = useState("");
   const [currentDifficulty, setCurrentDifficulty] = useState("");
+  const [currentTitle, setCurrentTitle] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [levels, setLevels] = useState<Level[]>([]);
   const [currentLevelGroups, setCurrentLevelGroups] = useState<WordGroup[]>([]);
-  const [currentLevel, setCurrentLevel] = useState(1);
-  const [selectedRedHerrings, setSelectedRedHerrings] = useState<{
+  const [currentLevel, setCurrentLevel] = useState(0); // Start at 0 for red herring setup
+  const [redHerringGroup, setRedHerringGroup] = useState<WordGroup | null>(null);
+  const [redHerringWords, setRedHerringWords] = useState({
+    word1: "",
+    word2: "",
+    word3: "",
+    word4: ""
+  });
+  const [redHerringAssignments, setRedHerringAssignments] = useState<{
     level1: string;
     level2: string;
     level3: string;
-    level4: string;
   }>({
     level1: "",
     level2: "",
-    level3: "",
-    level4: ""
+    level3: ""
   });
-  const [allGeneratedGroups, setAllGeneratedGroups] = useState<WordGroup[]>([]);
 
   const generateWordGroup = async () => {
-    if (!currentCategory || !currentDifficulty) return;
+    if (!currentCategory || !currentDifficulty || !currentTitle) return;
 
     setIsGenerating(true);
     try {
@@ -74,16 +79,16 @@ export default function AdminPage() {
       if (data.words) {
         const difficultyInfo = difficulties.find(d => d.key === currentDifficulty);
         const newGroup: WordGroup = {
-          category: currentCategory.toUpperCase(),
+          category: currentTitle.toUpperCase(),
           difficulty: difficultyInfo?.label || currentDifficulty,
           color: difficultyInfo?.color || "bg-gray-400",
           words: data.words,
         };
 
         setCurrentLevelGroups(prev => [...prev, newGroup]);
-        setAllGeneratedGroups(prev => [...prev, newGroup]);
         setCurrentCategory("");
         setCurrentDifficulty("");
+        setCurrentTitle("");
       }
     } catch (error) {
       console.error('Error generating words:', error);
@@ -92,16 +97,65 @@ export default function AdminPage() {
     }
   };
 
+  const getMaxGroupsForLevel = () => {
+    return currentLevel === 4 ? 3 : 4;
+  };
+
+  const deleteGroup = (groupIndex: number) => {
+    setCurrentLevelGroups(prev => prev.filter((_, index) => index !== groupIndex));
+  };
+
+  const createRedHerringGroup = () => {
+    const words = [
+      redHerringWords.word1,
+      redHerringWords.word2,
+      redHerringWords.word3,
+      redHerringWords.word4
+    ].filter(word => word.trim() !== "").map(word => word.trim().toUpperCase());
+
+    if (words.length !== 4) {
+      alert("Please enter exactly 4 red herring words");
+      return;
+    }
+
+    const newRedHerringGroup: WordGroup = {
+      category: "DOUBLE MEANINGS",
+      difficulty: "Ultimate",
+      color: "bg-red-500",
+      words: words
+    };
+    
+    setRedHerringGroup(newRedHerringGroup);
+    setCurrentLevel(1); // Move to level 1 after creating red herring group
+  };
+
+  const assignRedHerring = (word: string, level: 1 | 2 | 3) => {
+    setRedHerringAssignments(prev => ({
+      ...prev,
+      [`level${level}`]: prev[`level${level}` as keyof typeof prev] === word ? "" : word
+    }));
+  };
+
   const completeLevel = () => {
-    if (currentLevelGroups.length !== 4) {
-      alert("Please create 4 groups before completing the level");
+    if (currentLevel <= 3) {
+      // For levels 1-3, check if red herring is assigned
+      const currentRedHerring = redHerringAssignments[`level${currentLevel}` as keyof typeof redHerringAssignments];
+      if (!currentRedHerring) {
+        alert(`Please assign a red herring word to Level ${currentLevel}`);
+        return;
+      }
+    }
+
+    const maxGroups = getMaxGroupsForLevel();
+    if (currentLevelGroups.length !== maxGroups) {
+      alert(`Please create ${maxGroups} groups before completing level ${currentLevel}`);
       return;
     }
 
     const newLevel: Level = {
       id: currentLevel,
-      redHerring: "", // Will be set manually or generated
-      groups: [...currentLevelGroups],
+      redHerring: currentLevel <= 3 ? redHerringAssignments[`level${currentLevel}` as keyof typeof redHerringAssignments] : "",
+      groups: [...currentLevelGroups, ...(currentLevel === 4 && redHerringGroup ? [redHerringGroup] : [])],
     };
 
     setLevels(prev => [...prev, newLevel]);
@@ -110,21 +164,12 @@ export default function AdminPage() {
   };
 
   const exportConfig = async () => {
-    // Create levels 1-3 with manually selected red herrings
-    const processedLevels = levels.slice(0, 3).map(level => {
-      const levelKey = `level${level.id}` as keyof typeof selectedRedHerrings;
-      const selectedRedHerring = selectedRedHerrings[levelKey];
-      
-      // Filter out the red herring from groups and create clean groups
-      const cleanGroups = level.groups.map(group => ({
-        ...group,
-        words: group.words.filter(word => word !== selectedRedHerring)
-      })).filter(group => group.words.length > 0);
-      
+    // Create levels 1-4 using the new workflow
+    const processedLevels = levels.map(level => {
       return {
         id: level.id,
-        redHerring: selectedRedHerring || "PLACEHOLDER",
-        groups: cleanGroups.reduce((acc, group, index) => {
+        redHerring: level.redHerring || "",
+        groups: level.groups.reduce((acc, group, index) => {
           const groupKey = `group${index + 1}`;
           acc[groupKey] = {
             words: group.words,
@@ -136,44 +181,6 @@ export default function AdminPage() {
         }, {} as any),
       };
     });
-
-    // Create Level 4 with the red herrings forming their own group
-    const collectedRedHerrings = [
-      selectedRedHerrings.level1,
-      selectedRedHerrings.level2,
-      selectedRedHerrings.level3,
-      "PLACEHOLDER" // This will be determined by Level 4's actual red herring
-    ].filter(herring => herring && herring !== "");
-
-    if (levels.length >= 4) {
-      const level4 = levels[3];
-      const level4Groups = level4.groups.reduce((acc, group, index) => {
-        const groupKey = `group${index + 1}`;
-        acc[groupKey] = {
-          words: group.words,
-          color: group.color,
-          difficulty: group.difficulty.split(" ")[0],
-          category: group.category,
-        };
-        return acc;
-      }, {} as any);
-
-      // Add the red herring group as the final group
-      if (collectedRedHerrings.length >= 3) {
-        level4Groups.redHerrings = {
-          words: collectedRedHerrings.slice(0, 4), // Take first 4 or pad as needed
-          color: "bg-red-500",
-          difficulty: "Ultimate",
-          category: "DOUBLE MEANINGS",
-        };
-      }
-
-      processedLevels.push({
-        id: 4,
-        redHerring: "",
-        groups: level4Groups,
-      });
-    }
 
     const gameConfig = {
       levels: processedLevels,
@@ -249,18 +256,106 @@ export default function AdminPage() {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-2 text-black">Connections Plus Admin</h1>
-          <p className="text-gray-600">Generate word groups for each level</p>
+          <p className="text-gray-600">
+            {currentLevel === 0 ? "First, create your red herring group" : `Generate word groups for Level ${currentLevel}`}
+          </p>
         </div>
 
+        {/* Red Herring Group Creation (Step 0) */}
+        {currentLevel === 0 && (
+          <Card className="mb-6">
+            <CardBody className="p-6">
+              <h2 className="text-2xl font-bold mb-4">Step 1: Create Red Herring Group</h2>
+              <p className="text-gray-600 mb-6">
+                Enter the 4 words that will form your "Double Meanings" group. These words will be distributed across levels 1-3.
+              </p>
+              
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <Input
+                  label="Red Herring Word 1"
+                  placeholder="e.g., ORANGE"
+                  value={redHerringWords.word1}
+                  onChange={(e) => setRedHerringWords(prev => ({...prev, word1: e.target.value}))}
+                />
+                <Input
+                  label="Red Herring Word 2"
+                  placeholder="e.g., SPRING"
+                  value={redHerringWords.word2}
+                  onChange={(e) => setRedHerringWords(prev => ({...prev, word2: e.target.value}))}
+                />
+                <Input
+                  label="Red Herring Word 3"
+                  placeholder="e.g., BANK"
+                  value={redHerringWords.word3}
+                  onChange={(e) => setRedHerringWords(prev => ({...prev, word3: e.target.value}))}
+                />
+                <Input
+                  label="Red Herring Word 4"
+                  placeholder="e.g., POUND"
+                  value={redHerringWords.word4}
+                  onChange={(e) => setRedHerringWords(prev => ({...prev, word4: e.target.value}))}
+                />
+              </div>
+
+              <div className="text-center">
+                <Button
+                  onPress={createRedHerringGroup}
+                  className="bg-red-600 text-white px-8"
+                  isDisabled={[redHerringWords.word1, redHerringWords.word2, redHerringWords.word3, redHerringWords.word4].filter(w => w.trim() !== "").length !== 4}
+                >
+                  Create "Double Meanings" Group
+                </Button>
+              </div>
+            </CardBody>
+          </Card>
+        )}
+
+        {/* Red Herring Assignment */}
+        {currentLevel >= 1 && currentLevel <= 3 && redHerringGroup && (
+          <Card className="mb-6">
+            <CardBody className="p-6">
+              <h3 className="text-xl font-bold mb-4">Step 2: Assign Red Herring for Level {currentLevel}</h3>
+              <p className="text-gray-600 mb-4">Choose which red herring word appears in Level {currentLevel}:</p>
+              
+              <div className="flex justify-center gap-3 mb-6">
+                {redHerringGroup.words.map((word) => (
+                  <Button
+                    key={word}
+                    variant={redHerringAssignments[`level${currentLevel}` as keyof typeof redHerringAssignments] === word ? "solid" : "bordered"}
+                    className={
+                      redHerringAssignments[`level${currentLevel}` as keyof typeof redHerringAssignments] === word 
+                        ? "bg-red-500 text-white" 
+                        : "border-red-400 text-red-700 hover:bg-red-50"
+                    }
+                    onPress={() => assignRedHerring(word, currentLevel as 1 | 2 | 3)}
+                  >
+                    {word}
+                  </Button>
+                ))}
+              </div>
+            </CardBody>
+          </Card>
+        )}
+
         {/* Current Level Builder */}
-        <Card className="mb-6">
-          <CardBody className="p-6">
-            <h2 className="text-2xl font-bold mb-4">Building Level {currentLevel}</h2>
+        {currentLevel >= 1 && (
+          <Card className="mb-6">
+            <CardBody className="p-6">
+              <h2 className="text-2xl font-bold mb-4">
+                {currentLevel === 4 ? "Building Level 4 (Final Level)" : `Building Level ${currentLevel}`}
+              </h2>
             
             {/* Form for generating word groups */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <Input
-                label="Category"
+                label="Group Title"
+                placeholder="e.g., FISH, TOOLS"
+                value={currentTitle}
+                onChange={(e) => setCurrentTitle(e.target.value)}
+              />
+              
+              <Input
+                label="AI Category"
                 placeholder="e.g., Ocean Fish, Kitchen Tools"
                 value={currentCategory}
                 onChange={(e) => setCurrentCategory(e.target.value)}
@@ -272,7 +367,9 @@ export default function AdminPage() {
                 selectedKeys={currentDifficulty ? [currentDifficulty] : []}
                 onSelectionChange={(keys) => setCurrentDifficulty(Array.from(keys)[0] as string)}
               >
-                {difficulties.map((difficulty) => (
+                {difficulties.filter(difficulty => 
+                  currentLevel === 4 ? difficulty.key !== "purple" : true
+                ).map((difficulty) => (
                   <SelectItem key={difficulty.key}>
                     {difficulty.label}
                   </SelectItem>
@@ -283,7 +380,7 @@ export default function AdminPage() {
                 onPress={generateWordGroup}
                 isLoading={isGenerating}
                 className="bg-blue-600 text-white"
-                isDisabled={!currentCategory || !currentDifficulty}
+                isDisabled={!currentCategory || !currentDifficulty || !currentTitle}
               >
                 Generate Group
               </Button>
@@ -294,52 +391,59 @@ export default function AdminPage() {
               {currentLevelGroups.map((group, index) => (
                 <div
                   key={index}
-                  className={`${group.color} rounded-lg p-4 text-center`}
+                  className={`${group.color} rounded-lg p-4 text-center relative`}
                 >
+                  <Button
+                    size="sm"
+                    variant="light" 
+                    className="absolute top-2 right-2 text-red-600 hover:bg-red-100"
+                    onPress={() => deleteGroup(index)}
+                  >
+                    ✕
+                  </Button>
                   <div className="font-bold text-lg text-black uppercase tracking-wide mb-2">
                     {group.category}
                   </div>
                   <div className="font-semibold text-black uppercase tracking-wide mb-3">
                     {group.words.join(", ")}
                   </div>
-                  {currentLevel <= 3 && (
-                    <div className="mt-3 pt-3 border-t border-gray-300">
-                      <div className="text-sm text-gray-600 mb-2">Select red herring for Level {currentLevel}:</div>
-                      <div className="flex justify-center gap-2 flex-wrap">
-                        {group.words.map((word) => (
-                          <Button
-                            key={word}
-                            size="sm"
-                            variant={selectedRedHerrings[`level${currentLevel}` as keyof typeof selectedRedHerrings] === word ? "solid" : "bordered"}
-                            className={
-                              selectedRedHerrings[`level${currentLevel}` as keyof typeof selectedRedHerrings] === word 
-                                ? "bg-red-500 text-white" 
-                                : "border-gray-400 text-gray-700 hover:bg-gray-100"
-                            }
-                            onPress={() => {
-                              const levelKey = `level${currentLevel}` as keyof typeof selectedRedHerrings;
-                              setSelectedRedHerrings(prev => ({
-                                ...prev,
-                                [levelKey]: prev[levelKey] === word ? "" : word
-                              }));
-                            }}
-                          >
-                            {word}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
               ))}
+
+              {/* Red herring group for level 4 */}
+              {currentLevel === 4 && redHerringGroup && (
+                <div className={`${redHerringGroup.color} rounded-lg p-4 text-center relative border-2 border-red-600`}>
+                  <Button
+                    size="sm"
+                    variant="light" 
+                    className="absolute top-2 right-2 text-red-600 hover:bg-red-100"
+                    onPress={() => setRedHerringGroup(null)}
+                  >
+                    ✕
+                  </Button>
+                  <div className="font-bold text-lg text-white uppercase tracking-wide mb-2">
+                    {redHerringGroup.category}
+                  </div>
+                  <div className="font-semibold text-lg text-white uppercase tracking-wide">
+                    {redHerringGroup.words.join(", ")}
+                  </div>
+                  <div className="text-sm text-red-100 mt-2">Red Herring Group</div>
+                </div>
+              )}
             </div>
+
 
             <div className="flex justify-between items-center">
               <div className="text-gray-600">
-                <div>Groups completed: {currentLevelGroups.length}/4</div>
+                <div>Groups completed: {currentLevelGroups.length + (currentLevel === 4 && redHerringGroup ? 1 : 0)}/{getMaxGroupsForLevel() + (currentLevel === 4 ? 1 : 0)}</div>
                 {currentLevel <= 3 && (
                   <div className="text-sm mt-1">
-                    Red herring selected: {selectedRedHerrings[`level${currentLevel}` as keyof typeof selectedRedHerrings] || "None"}
+                    Red herring assigned: {redHerringAssignments[`level${currentLevel}` as keyof typeof redHerringAssignments] || "None"}
+                  </div>
+                )}
+                {currentLevel === 4 && (
+                  <div className="text-sm mt-1">
+                    Red herring group: {redHerringGroup ? "✓ Created" : "Not created"}
                   </div>
                 )}
               </div>
@@ -347,13 +451,18 @@ export default function AdminPage() {
               <Button
                 onPress={completeLevel}
                 className="bg-green-600 text-white"
-                isDisabled={currentLevelGroups.length !== 4 || (currentLevel <= 3 && !selectedRedHerrings[`level${currentLevel}` as keyof typeof selectedRedHerrings])}
+                isDisabled={
+                  currentLevelGroups.length !== getMaxGroupsForLevel() || 
+                  (currentLevel <= 3 && !redHerringAssignments[`level${currentLevel}` as keyof typeof redHerringAssignments]) ||
+                  (currentLevel === 4 && !redHerringGroup)
+                }
               >
                 Complete Level {currentLevel}
               </Button>
             </div>
           </CardBody>
         </Card>
+        )}
 
         {/* Completed Levels */}
         {levels.length > 0 && (
@@ -369,23 +478,17 @@ export default function AdminPage() {
                       {level.id <= 3 && (
                         <div className="text-sm text-gray-600">
                           Red herring: <span className="font-semibold text-red-600">
-                            {selectedRedHerrings[`level${level.id}` as keyof typeof selectedRedHerrings] || "Not selected"}
+                            {level.redHerring || "Not assigned"}
                           </span>
                         </div>
                       )}
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {level.groups.map((group, index) => {
-                        const levelKey = `level${level.id}` as keyof typeof selectedRedHerrings;
-                        const selectedRedHerring = selectedRedHerrings[levelKey];
-                        const filteredWords = level.id <= 3 ? group.words.filter(word => word !== selectedRedHerring) : group.words;
-                        
-                        if (level.id <= 3 && filteredWords.length === 0) return null;
-                        
                         return (
                           <div key={index} className={`${group.color} rounded p-2 text-center text-sm`}>
                             <div className="font-semibold text-black">{group.category}</div>
-                            <div className="text-black">{filteredWords.join(", ")}</div>
+                            <div className="text-black">{group.words.join(", ")}</div>
                           </div>
                         );
                       })}
@@ -395,22 +498,27 @@ export default function AdminPage() {
               </div>
 
               {/* Red Herring Summary */}
-              <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <h3 className="font-bold text-red-800 mb-2">Level 4 Mystery Group Preview</h3>
-                <div className="text-sm text-red-700">
-                  Red herrings collected: {[selectedRedHerrings.level1, selectedRedHerrings.level2, selectedRedHerrings.level3].filter(h => h).join(", ") || "None selected yet"}
-                </div>
-                {[selectedRedHerrings.level1, selectedRedHerrings.level2, selectedRedHerrings.level3].filter(h => h).length === 3 && (
-                  <div className="text-sm text-green-700 mt-1 font-semibold">
-                    ✓ Ready for Level 4 mystery group!
+              {redHerringGroup && (
+                <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <h3 className="font-bold text-red-800 mb-2">Red Herring Group (Level 4)</h3>
+                  <div className="bg-red-500 rounded p-3 text-center">
+                    <div className="font-bold text-white text-lg uppercase tracking-wide mb-2">
+                      DOUBLE MEANINGS
+                    </div>
+                    <div className="font-semibold text-white uppercase tracking-wide">
+                      {redHerringGroup.words.join(", ")}
+                    </div>
                   </div>
-                )}
-              </div>
+                  <div className="text-sm text-red-700 mt-2">
+                    Assignments: Level 1: {redHerringAssignments.level1 || "?"}, Level 2: {redHerringAssignments.level2 || "?"}, Level 3: {redHerringAssignments.level3 || "?"}
+                  </div>
+                </div>
+              )}
 
               <Button
                 onPress={exportConfig}
                 className="mt-4 bg-purple-600 text-white"
-                isDisabled={levels.length < 4 || [selectedRedHerrings.level1, selectedRedHerrings.level2, selectedRedHerrings.level3].filter(h => h).length < 3}
+                isDisabled={levels.length < 4 || !redHerringGroup}
               >
                 Export Game Config
               </Button>

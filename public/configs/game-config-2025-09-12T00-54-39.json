@@ -1,0 +1,204 @@
+{
+  "levels": [
+    {
+      "id": 1,
+      "redHerring": "PARKER",
+      "groups": {
+        "group1": {
+          "words": [
+            "PETER",
+            "JOHN",
+            "MATTHEW",
+            "ANDREW"
+          ],
+          "color": "bg-yellow-400",
+          "difficulty": "Yellow",
+          "category": "APOSTLES"
+        },
+        "group2": {
+          "words": [
+            "HEART",
+            "STAR",
+            "CIRCLE",
+            "SQUARE"
+          ],
+          "color": "bg-green-400",
+          "difficulty": "Green",
+          "category": "SYMBOLS NOT CROSS"
+        },
+        "group3": {
+          "words": [
+            "PERIWINKLE",
+            "MAIZE",
+            "CERULEAN",
+            "THISTLE"
+          ],
+          "color": "bg-blue-400",
+          "difficulty": "Blue",
+          "category": "CRAYONS"
+        },
+        "group4": {
+          "words": [
+            "VIZSLA",
+            "KOMONDOR",
+            "XOLO",
+            "KUVASZ"
+          ],
+          "color": "bg-purple-400",
+          "difficulty": "Purple",
+          "category": "DOG BREEDS"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "redHerring": "MONTBLANC",
+      "groups": {
+        "group1": {
+          "words": [
+            "EVEREST",
+            "DENALI",
+            "KILIMANJARO",
+            "FUJI"
+          ],
+          "color": "bg-yellow-400",
+          "difficulty": "Yellow",
+          "category": "MOUNTAIN NAMES"
+        },
+        "group2": {
+          "words": [
+            "NILE",
+            "THAMES",
+            "DANUBE",
+            "VOLGA"
+          ],
+          "color": "bg-green-400",
+          "difficulty": "Green",
+          "category": "RIVER NAMES"
+        },
+        "group3": {
+          "words": [
+            "DUNGENESS",
+            "HERMIT",
+            "FIDDLER",
+            "HORSESHOE"
+          ],
+          "color": "bg-blue-400",
+          "difficulty": "Blue",
+          "category": "CRAB TYPES"
+        },
+        "group4": {
+          "words": [
+            "HONSHU",
+            "KYUSHU",
+            "SHIKOKU",
+            "HOKKAIDO"
+          ],
+          "color": "bg-purple-400",
+          "difficulty": "Purple",
+          "category": "JAPANESE ISLANDS"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "redHerring": "PARKER",
+      "groups": {
+        "group1": {
+          "words": [
+            "BELLHOP",
+            "CONCIERGE",
+            "DOORMAN",
+            "HOUSEKEEPER"
+          ],
+          "color": "bg-yellow-400",
+          "difficulty": "Yellow",
+          "category": "HOSPITALITY JOBS"
+        },
+        "group2": {
+          "words": [
+            "MIDWIFE",
+            "MATRON",
+            "PEDIATRIC",
+            "HOSPICE"
+          ],
+          "color": "bg-green-400",
+          "difficulty": "Green",
+          "category": "NURSING JOBS"
+        },
+        "group3": {
+          "words": [
+            "KARATE",
+            "JUDO",
+            "SUMO",
+            "KENDO"
+          ],
+          "color": "bg-blue-400",
+          "difficulty": "Blue",
+          "category": "COMBAT SPORTS"
+        },
+        "group4": {
+          "words": [
+            "PIERCE",
+            "GRANT",
+            "BUSH",
+            "POLK"
+          ],
+          "color": "bg-purple-400",
+          "difficulty": "Purple",
+          "category": "PRESIDENT'S LAST NAMES"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "redHerring": "",
+      "groups": {
+        "group1": {
+          "words": [
+            "OGUNQUIT",
+            "WELLS",
+            "POPHAM",
+            "HIGGINS"
+          ],
+          "color": "bg-yellow-400",
+          "difficulty": "Yellow",
+          "category": "MAINE BEACHES"
+        },
+        "group2": {
+          "words": [
+            "KORMA",
+            "VINDALOO",
+            "TIKKA",
+            "MADRAS"
+          ],
+          "color": "bg-green-400",
+          "difficulty": "Green",
+          "category": "CURRY NAMES"
+        },
+        "group3": {
+          "words": [
+            "RATATOUILLE",
+            "CASSOULET",
+            "BOUILLABAISSE",
+            "QUICHE"
+          ],
+          "color": "bg-blue-400",
+          "difficulty": "Blue",
+          "category": "FRENCH DISHES"
+        },
+        "group4": {
+          "words": [
+            "MONTBLANC",
+            "CARAN D’ACHE",
+            "PARKER",
+            "CROSS"
+          ],
+          "color": "bg-red-500",
+          "difficulty": "Ultimate",
+          "category": "DOUBLE MEANINGS"
+        }
+      }
+    }
+  ]
+}
