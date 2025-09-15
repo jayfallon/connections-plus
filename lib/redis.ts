@@ -98,9 +98,10 @@ export async function getGamesByMonth(year: number, month: number): Promise<Game
   const current = new Date(startDate);
   
   while (current <= endDate) {
-    const dateStr = current.toISOString().split('T')[0];
+    // Format date without timezone conversion to match Redis keys
+    const dateStr = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`;
     const gameData = await client.get(`game:${dateStr}`);
-    
+
     if (gameData) {
       const game: GameConfig = JSON.parse(gameData);
       games.push({
@@ -109,7 +110,7 @@ export async function getGamesByMonth(year: number, month: number): Promise<Game
         id: game.id
       });
     }
-    
+
     current.setDate(current.getDate() + 1);
   }
   
