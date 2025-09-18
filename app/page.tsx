@@ -133,16 +133,41 @@ export default function Home() {
     return allWords;
   };
 
+  // Enhanced Fisher-Yates shuffle algorithm
+  const enhancedShuffle = (array: string[]) => {
+    const shuffled = [...array];
+
+    // Perform multiple passes of Fisher-Yates shuffle for better randomization
+    for (let pass = 0; pass < 3; pass++) {
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+    }
+
+    // Additional entropy: shuffle in chunks and recombine
+    const chunkSize = Math.ceil(shuffled.length / 4);
+    const chunks = [];
+    for (let i = 0; i < shuffled.length; i += chunkSize) {
+      chunks.push(shuffled.slice(i, i + chunkSize));
+    }
+
+    // Shuffle the chunks themselves
+    for (let i = chunks.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [chunks[i], chunks[j]] = [chunks[j], chunks[i]];
+    }
+
+    // Flatten back to single array
+    return chunks.flat();
+  };
+
   // Shuffle words on level change or game data load
   useEffect(() => {
     if (!gameData) return; // Don't run until game data is loaded
 
     const currentWords = getCurrentWords();
-    const shuffled = [...currentWords];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
+    const shuffled = enhancedShuffle(currentWords);
     setShuffledWords(shuffled);
 
     // Reset level-specific state
@@ -169,11 +194,8 @@ export default function Home() {
 
   const shuffleWords = () => {
     const currentWords = [...shuffledWords];
-    for (let i = currentWords.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [currentWords[i], currentWords[j]] = [currentWords[j], currentWords[i]];
-    }
-    setShuffledWords(currentWords);
+    const reshuffled = enhancedShuffle(currentWords);
+    setShuffledWords(reshuffled);
     setSelectedWords([]); // Clear selection when shuffling
   };
 
