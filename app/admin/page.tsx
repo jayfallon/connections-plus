@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardBody, Button, Input, Select, SelectItem, DatePicker } from "@heroui/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { format } from "date-fns";
 import { parseDate } from "@internationalized/date";
 import { useSearchParams } from "next/navigation";
@@ -39,7 +39,7 @@ const difficulties = [
   { key: "purple", label: "Purple (Hard)", color: "bg-[#ba81c5]" },
 ];
 
-export default function AdminPage() {
+function AdminPageContent() {
   const searchParams = useSearchParams();
   const dateParam = searchParams.get('date');
 
@@ -911,5 +911,19 @@ export default function AdminPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function AdminPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white p-8 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-xl font-medium text-gray-600 mb-4">Loading...</div>
+        </div>
+      </div>
+    }>
+      <AdminPageContent />
+    </Suspense>
   );
 }
