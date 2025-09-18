@@ -11,6 +11,7 @@ import {
 import { useState, useEffect } from "react";
 import { getPlayerId, canPlayToday, markTodayAsPlayed } from "@/lib/player";
 import { format } from "date-fns";
+import { X } from "lucide-react";
 import "./shake-animation.css";
 
 interface GameData {
@@ -46,6 +47,8 @@ export default function Home() {
   const [showIntro, setShowIntro] = useState(true);
   const [shakeWords, setShakeWords] = useState<string[]>([]);
   const [showFeedbackPopover, setShowFeedbackPopover] = useState(false);
+  const [showLevelTransition, setShowLevelTransition] = useState(false);
+  const [transitionLevel, setTransitionLevel] = useState<number>(1);
 
   // Initialize player and check if they can play
   useEffect(() => {
@@ -178,6 +181,21 @@ export default function Home() {
     setSelectedWords([]);
   };
 
+  const getLevelName = (level: number) => {
+    switch (level) {
+      case 1:
+        return "Easy";
+      case 2:
+        return "Medium";
+      case 3:
+        return "Hard";
+      case 4:
+        return "Final";
+      default:
+        return `Level ${level}`;
+    }
+  };
+
   const startNewGame = () => {
     setCurrentLevel(1);
     setAccumulatedRedHerrings([]);
@@ -187,6 +205,7 @@ export default function Home() {
     setFeedback("");
     setGameComplete(false);
     setAllLevelsComplete(false);
+    setShowLevelTransition(false);
   };
 
   const advanceToNextLevel = () => {
@@ -201,12 +220,9 @@ export default function Home() {
     }
 
     if (currentLevel < 4) {
-      setCurrentLevel((prev) => prev + 1);
-      setFeedback(
-        `Level ${currentLevel} complete! Advancing to Level ${
-          currentLevel + 1
-        }...`
-      );
+      // Show transition screen for next level - user must click to proceed
+      setTransitionLevel(currentLevel + 1);
+      setShowLevelTransition(true);
     } else {
       setAllLevelsComplete(true);
       setFeedback(
@@ -490,6 +506,100 @@ export default function Home() {
     );
   }
 
+  // Show level transition screen
+  if (showLevelTransition) {
+    const completedLevels = transitionLevel - 1; // Number of levels completed before this one
+
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-[#b0c4ef] to-[#88A6E7] flex flex-col items-center justify-center p-4 relative">
+        {/* Close button */}
+        <Button
+          variant="light"
+          className="absolute top-4 right-4 text-white hover:bg-white/20"
+          onPress={() => setShowLevelTransition(false)}
+          isIconOnly
+        >
+          <X size={20} />
+        </Button>
+
+        <div
+          className="text-center text-white opacity-0 animate-fade-in max-w-md w-full"
+          style={{
+            animation: "fadeIn 0.5s ease-in forwards"
+          }}
+        >
+          <h1 className="text-6xl font-bold mb-8">
+            {getLevelName(transitionLevel)}
+          </h1>
+
+          {/* Level selection buttons */}
+          <div className="space-y-3 mb-8">
+            {[1, 2, 3, 4].map((level) => {
+              const isCompleted = level < transitionLevel;
+              const isCurrent = level === transitionLevel;
+              const isLocked = level > transitionLevel;
+
+              return (
+                <Button
+                  key={level}
+                  className={`w-full py-3 text-lg font-semibold rounded-full ${
+                    isCurrent
+                      ? "bg-white text-blue-600 hover:bg-gray-100"
+                      : isCompleted
+                      ? "bg-white/20 text-white hover:bg-white/30 border-2 border-white/50"
+                      : "bg-gray-500/30 text-gray-300 cursor-not-allowed border-2 border-gray-400/30"
+                  }`}
+                  onPress={() => {
+                    if (isCompleted || isCurrent) {
+                      // Allow going back to previous levels OR advancing to current level
+                      setTransitionLevel(level);
+                      setCurrentLevel(level);
+                      setShowLevelTransition(false);
+                      // Rebuild accumulated red herrings for the selected level
+                      if (gameData) {
+                        const newRedHerrings: string[] = [];
+                        for (let i = 0; i < level - 1; i++) {
+                          if (gameData.levels[i].redHerring) {
+                            newRedHerrings.push(gameData.levels[i].redHerring);
+                          }
+                        }
+                        setAccumulatedRedHerrings(newRedHerrings);
+                      }
+                    }
+                  }}
+                  isDisabled={isLocked}
+                >
+                  <div className="flex items-center justify-between w-full px-4">
+                    <span>{getLevelName(level)}</span>
+                    {isCompleted && <span className="text-sm">✓ Completed</span>}
+                    {isCurrent && <span className="text-sm">Current</span>}
+                    {isLocked && <span className="text-sm">🔒</span>}
+                  </div>
+                </Button>
+              );
+            })}
+          </div>
+
+          <div className="text-xl">
+            Level {transitionLevel} of 4
+          </div>
+        </div>
+        <style jsx>{`
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white p-2">
       <div className="max-w-2xl mx-auto">
@@ -508,10 +618,18 @@ export default function Home() {
               : "Create four groups of four!"}
           </h1>
           {/* Level indicator */}
-          <div className="mb-4 flex justify-between items-center">
-            <span className="text-lg text-gray-600 w-full text-center">
+          <div className="mb-4 flex justify-center items-center">
+            <Button
+              variant="light"
+              className="text-lg text-gray-600 hover:text-blue-600"
+              onPress={() => {
+                setTransitionLevel(currentLevel);
+                setShowLevelTransition(true);
+              }}
+            >
               Level {currentLevel} of 4
-            </span>
+              <span className="ml-2 text-sm">▼</span>
+            </Button>
           </div>
         </div>
 
@@ -692,7 +810,7 @@ export default function Home() {
                   {/* Popover for feedback - only for wrong guesses */}
                   {showFeedbackPopover && feedback && feedback.includes("Not quite right") && (
                     <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-full mb-2 z-50">
-                      <div className="bg-white border border-gray-300 rounded-lg shadow-lg px-3 py-2 relative">
+                      <div className="bg-white border border-gray-300 rounded-lg shadow-lg px-4 py-2 relative whitespace-nowrap">
                         <div className="text-sm font-semibold text-slate-800">
                           {feedback}
                         </div>

@@ -211,6 +211,15 @@ export default function CalendarPage() {
                     
                     <div className="pt-4 space-y-2">
                       <Button
+                        className="w-full bg-blue-600 text-white"
+                        onPress={() => {
+                          // Redirect to admin page with the date to load
+                          window.location.href = `/admin?date=${selectedGame.date}`;
+                        }}
+                      >
+                        Edit Puzzle
+                      </Button>
+                      <Button
                         className="w-full bg-red-600 text-white"
                         onPress={() => deleteGame(selectedGame.date)}
                       >
