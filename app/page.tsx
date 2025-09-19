@@ -363,14 +363,32 @@ export default function Home() {
     } else {
       // Incorrect guess - trigger shake animation
       setShakeWords([...selectedWords]);
-      setMistakesRemaining((prev) => prev - 1);
-      setFeedback("Not quite right. Try again!");
-      setShowFeedbackPopover(true);
+      const newMistakesRemaining = mistakesRemaining - 1;
+      setMistakesRemaining(newMistakesRemaining);
+
+      // Check if out of mistakes - reveal answers
+      if (newMistakesRemaining === 0) {
+        setFeedback("Out of guesses! Here are the answers:");
+        setShowFeedbackPopover(false);
+
+        // Automatically solve all remaining groups
+        const allGroupIndices = currentLevelConfig.groups.map((_, index) => index.toString());
+        setSolvedGroups(allGroupIndices);
+        setGameComplete(true);
+
+        // Clear selected words
+        setSelectedWords([]);
+      } else {
+        setFeedback("Not quite right. Try again!");
+        setShowFeedbackPopover(true);
+      }
 
       // Clear shake animation after it completes
       setTimeout(() => {
         setShakeWords([]);
-        setSelectedWords([]);
+        if (newMistakesRemaining > 0) {
+          setSelectedWords([]);
+        }
       }, 1000);
 
       // Save progress with mistake
@@ -387,6 +405,7 @@ export default function Home() {
               return currentLevelConfig.groups[idx]?.words || [];
             }),
             mistakes: 4 - mistakesRemaining + 1,
+            failed: newMistakesRemaining === 0,
           }),
         });
       } catch (error) {
@@ -781,6 +800,47 @@ export default function Home() {
               >
                 Play Again
               </Button>
+            ) : gameComplete && mistakesRemaining === 0 ? (
+              // Failed - out of guesses
+              <div className="text-center">
+                <div className="text-red-600 font-bold mb-4">
+                  Better luck next time!
+                </div>
+                {currentLevel < 4 ? (
+                  <div className="flex justify-center gap-4">
+                    <Button
+                      onPress={() => {
+                        // Restart current level only
+                        setSelectedWords([]);
+                        setMistakesRemaining(4);
+                        setSolvedGroups([]);
+                        setFeedback("");
+                        setGameComplete(false);
+                        // Re-shuffle the words
+                        const currentWords = getCurrentWords();
+                        const shuffled = enhancedShuffle(currentWords);
+                        setShuffledWords(shuffled);
+                      }}
+                      className="px-8 py-3 bg-gray-600 text-white font-semibold rounded-full hover:bg-gray-700"
+                    >
+                      Restart Level
+                    </Button>
+                    <Button
+                      onPress={advanceToNextLevel}
+                      className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700"
+                    >
+                      Next Level Anyway
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    onPress={startNewGame}
+                    className="px-8 py-3 bg-gray-600 text-white font-semibold rounded-full hover:bg-gray-700"
+                  >
+                    Play Again
+                  </Button>
+                )}
+              </div>
             ) : gameComplete && currentLevel < 4 ? (
               <Button
                 onPress={advanceToNextLevel}
