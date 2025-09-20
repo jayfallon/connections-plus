@@ -504,6 +504,22 @@ export default function Home() {
             <div className="mt-1">Daily Puzzle</div>
           </div>
 
+          {/* Disclaimer */}
+          <div className="mt-8 text-xs opacity-75">
+            <div>Based on NYT's Connections</div>
+            <div className="mt-1">
+              Made with love by{" "}
+              <a
+                href="https://jayfallon.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:opacity-100"
+              >
+                Jay Fallon
+              </a>
+            </div>
+          </div>
+
           {feedback && (
             <div className="mt-4 text-slate-800 text-sm">{feedback}</div>
           )}
