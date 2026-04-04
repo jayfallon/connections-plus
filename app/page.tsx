@@ -230,7 +230,7 @@ export default function Home() {
     } else {
       setAllLevelsComplete(true);
       setFeedback(
-        "🎉 INCREDIBLE! You discovered the secret red herring group!"
+        "🎉 INCREDIBLE! You discovered the secret red herring group!",
       );
     }
   };
@@ -337,8 +337,12 @@ export default function Home() {
           setFeedback(
             `${rating} Level ${currentLevel} complete with ${mistakesMade} mistake${
               mistakesMade !== 1 ? "s" : ""
-            }!`
+            }!`,
           );
+
+          setTimeout(() => {
+            advanceToNextLevel();
+          }, 1500);
         }
         return; // Don't clear feedback for win condition
       }
@@ -354,7 +358,9 @@ export default function Home() {
         setShowFeedbackPopover(false);
 
         // Automatically solve all remaining groups
-        const allGroupIndices = currentLevelConfig.groups.map((_, index) => index.toString());
+        const allGroupIndices = currentLevelConfig.groups.map((_, index) =>
+          index.toString(),
+        );
         setSolvedGroups(allGroupIndices);
         setGameComplete(true);
 
@@ -455,8 +461,8 @@ export default function Home() {
                       i === 0 || i === 1 || i === 3 || i === 4
                         ? "bg-purple-300"
                         : i === 2 || i === 5
-                        ? "bg-green-300"
-                        : "bg-blue-300"
+                          ? "bg-green-300"
+                          : "bg-blue-300"
                     }`}
                   />
                 ))}
@@ -492,7 +498,7 @@ export default function Home() {
             <div className="mt-1">
               Made with love by{" "}
               <a
-                href="https://jayfallon.com"
+                href="https://jayfallon.net"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline hover:opacity-100"
@@ -564,7 +570,7 @@ export default function Home() {
         <div
           className="text-center text-white opacity-0 animate-fade-in max-w-md w-full"
           style={{
-            animation: "fadeIn 0.5s ease-in forwards"
+            animation: "fadeIn 0.5s ease-in forwards",
           }}
         >
           <h1 className="text-6xl font-bold mb-8">
@@ -585,8 +591,8 @@ export default function Home() {
                     isCurrent
                       ? "bg-white text-blue-600 hover:bg-gray-100"
                       : isCompleted
-                      ? "bg-white/20 text-white hover:bg-white/30 border-2 border-white/50"
-                      : "bg-gray-500/30 text-gray-300 cursor-not-allowed border-2 border-gray-400/30"
+                        ? "bg-white/20 text-white hover:bg-white/30 border-2 border-white/50"
+                        : "bg-gray-500/30 text-gray-300 cursor-not-allowed border-2 border-gray-400/30"
                   }`}
                   onPress={() => {
                     if (isCompleted || isCurrent) {
@@ -610,7 +616,9 @@ export default function Home() {
                 >
                   <div className="flex items-center justify-between w-full px-4">
                     <span>{getLevelName(level)}</span>
-                    {isCompleted && <span className="text-sm">✓ Completed</span>}
+                    {isCompleted && (
+                      <span className="text-sm">✓ Completed</span>
+                    )}
                     {isCurrent && <span className="text-sm">Current</span>}
                     {isLocked && <span className="text-sm">🔒</span>}
                   </div>
@@ -619,9 +627,7 @@ export default function Home() {
             })}
           </div>
 
-          <div className="text-xl">
-            Level {transitionLevel} of 4
-          </div>
+          <div className="text-xl">Level {transitionLevel} of 4</div>
         </div>
         <style jsx>{`
           @keyframes fadeIn {
@@ -666,8 +672,7 @@ export default function Home() {
                 setShowLevelTransition(true);
               }}
             >
-              Level {currentLevel} of 4
-              <span className="ml-2 text-sm">▼</span>
+              Level {currentLevel} of 4<span className="ml-2 text-sm">▼</span>
             </Button>
           </div>
         </div>
@@ -886,22 +891,24 @@ export default function Home() {
                   >
                     Submit
                   </Button>
-                  
+
                   {/* Popover for feedback - only for wrong guesses */}
-                  {showFeedbackPopover && feedback && feedback.includes("Not quite right") && (
-                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-full mb-2 z-50">
-                      <div className="bg-white border border-gray-300 rounded-lg shadow-lg px-4 py-2 relative whitespace-nowrap">
-                        <div className="text-sm font-semibold text-slate-800">
-                          {feedback}
-                        </div>
-                        {/* Arrow pointing down */}
-                        <div className="absolute top-full left-1/2 transform -translate-x-1/2">
-                          <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-300"></div>
-                          <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-white absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-px"></div>
+                  {showFeedbackPopover &&
+                    feedback &&
+                    feedback.includes("Not quite right") && (
+                      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-full mb-2 z-50">
+                        <div className="bg-white border border-gray-300 rounded-lg shadow-lg px-4 py-2 relative whitespace-nowrap">
+                          <div className="text-sm font-semibold text-slate-800">
+                            {feedback}
+                          </div>
+                          {/* Arrow pointing down */}
+                          <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+                            <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-300"></div>
+                            <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-white absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-px"></div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                 </div>
               </>
             )}
