@@ -600,6 +600,11 @@ export default function Home() {
                       setTransitionLevel(level);
                       setCurrentLevel(level);
                       setShowLevelTransition(false);
+                      setSolvedGroups([]);
+                      setGameComplete(false);
+                      setMistakesRemaining(4);
+                      setSelectedWords([]);
+                      setFeedback("");
                       // Rebuild accumulated red herrings for the selected level
                       if (gameData) {
                         const newRedHerrings: string[] = [];
