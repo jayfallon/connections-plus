@@ -56,9 +56,8 @@ export default function Home() {
       const id = getPlayerId();
       setPlayerId(id);
 
-      // Check if player can play today (bypass in development)
-      const canPlayCheck = process.env.NODE_ENV === "development" ? true : canPlayToday();
-      setCanPlay(canPlayCheck);
+      // Allow any user to play
+      setCanPlay(true);
 
       setLoading(false);
     };
@@ -72,31 +71,14 @@ export default function Home() {
     try {
       let data;
 
-      // In development, try loading from local JSON file first
-      if (process.env.NODE_ENV === "development") {
-        try {
-          const localResponse = await fetch("/configs/dev-game.json");
-          if (localResponse.ok) {
-            data = await localResponse.json();
-
-            setGameData(data);
-            setShowIntro(false);
-            setLoading(false);
-            return;
-          }
-        } catch (devError) {
-          console.log("Local dev file not found, trying API...", devError);
-        }
-      }
-
-      // Fallback to API
-      const response = await fetch("/api/game");
+      // Load the test game directly
+      const response = await fetch("/configs/dev-game.json");
       if (response.ok) {
         data = await response.json();
         setGameData(data);
         setShowIntro(false);
       } else {
-        setFeedback("No game available for today. Check back later!");
+        setFeedback("No game available. Check back later!");
       }
     } catch (error) {
       setFeedback("Failed to load today's game");
