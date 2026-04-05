@@ -4,13 +4,19 @@ let redis: RedisClientType | null = null;
 
 export async function getRedisClient(): Promise<RedisClientType> {
   if (!redis) {
-    redis = createClient({
-      socket: {
-        host: process.env.REDIS_HOST!,
-        port: parseInt(process.env.REDIS_PORT!),
-      },
-      password: process.env.REDIS_PASSWORD!
-    });
+    const host = process.env.REDIS_HOST!;
+    // Support full Redis URLs (e.g. redis://...) or plain hostnames
+    if (host.startsWith("redis://") || host.startsWith("rediss://")) {
+      redis = createClient({ url: host });
+    } else {
+      redis = createClient({
+        socket: {
+          host,
+          port: parseInt(process.env.REDIS_PORT!),
+        },
+        password: process.env.REDIS_PASSWORD!,
+      });
+    }
 
     await redis.connect();
   }
@@ -49,12 +55,13 @@ export interface PlayerProgress {
   playerId: string;
   gameId: string;
   currentLevel: number;
-  completedGroups: string[][];
-  mistakes: number;
+  solvedGroups: string[];
+  accumulatedRedHerrings: string[];
+  mistakesRemaining: number;
+  gameComplete: boolean;
+  allLevelsComplete: boolean;
   startTime: string;
   lastActivity: string;
-  completed: boolean;
-  perfect: boolean;
 }
 
 export async function saveGameConfig(gameConfig: GameConfig): Promise<void> {
@@ -77,6 +84,11 @@ export async function getPlayerProgress(playerId: string, gameId: string): Promi
   const client = await getRedisClient();
   const data = await client.get(`player:${playerId}:${gameId}`);
   return data ? JSON.parse(data) : null;
+}
+
+export async function deletePlayerProgress(playerId: string, gameId: string): Promise<void> {
+  const client = await getRedisClient();
+  await client.del(`player:${playerId}:${gameId}`);
 }
 
 export function getTodayGameId(): string {

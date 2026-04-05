@@ -9,7 +9,7 @@ import {
   PopoverContent,
 } from "@heroui/react";
 import { useState, useEffect } from "react";
-import { getPlayerId, canPlayToday, markTodayAsPlayed } from "@/lib/player";
+import { getPlayerId } from "@/lib/player";
 import { format } from "date-fns";
 import { X } from "lucide-react";
 import "./shake-animation.css";
@@ -49,37 +49,94 @@ export default function Home() {
   const [showFeedbackPopover, setShowFeedbackPopover] = useState(false);
   const [showLevelTransition, setShowLevelTransition] = useState(false);
   const [transitionLevel, setTransitionLevel] = useState<number>(1);
+  const [restoringState, setRestoringState] = useState(false);
 
-  // Initialize player and check if they can play
+  // Initialize player and restore saved game if exists
   useEffect(() => {
-    const initializePlayer = () => {
-      const id = getPlayerId();
-      setPlayerId(id);
+    const id = getPlayerId();
+    setPlayerId(id);
+    setCanPlay(true);
 
-      // Allow any user to play
-      setCanPlay(true);
+    // If there's a saved game, restore it immediately
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const state = JSON.parse(saved);
+      setRestoringState(true);
+      fetch("/configs/dev-game.json")
+        .then((res) => res.json())
+        .then((data) => {
+          setGameData(data);
+          setCurrentLevel(state.currentLevel);
+          setSolvedGroups(state.solvedGroups || []);
+          setAccumulatedRedHerrings(state.accumulatedRedHerrings || []);
+          setMistakesRemaining(state.mistakesRemaining ?? 4);
+          setGameComplete(state.gameComplete || false);
+          setAllLevelsComplete(state.allLevelsComplete || false);
+          setShowIntro(false);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+      return;
+    }
 
-      setLoading(false);
-    };
-
-    initializePlayer();
+    setLoading(false);
   }, []);
+
+  const STORAGE_KEY = "connections_game_state";
+
+  // Save game state to localStorage
+  const saveGameState = (overrides?: {
+    currentLevel?: number;
+    solvedGroups?: string[];
+    accumulatedRedHerrings?: string[];
+    mistakesRemaining?: number;
+    gameComplete?: boolean;
+    allLevelsComplete?: boolean;
+  }) => {
+    const state = {
+      currentLevel: overrides?.currentLevel ?? currentLevel,
+      solvedGroups: overrides?.solvedGroups ?? solvedGroups,
+      accumulatedRedHerrings: overrides?.accumulatedRedHerrings ?? accumulatedRedHerrings,
+      mistakesRemaining: overrides?.mistakesRemaining ?? mistakesRemaining,
+      gameComplete: overrides?.gameComplete ?? gameComplete,
+      allLevelsComplete: overrides?.allLevelsComplete ?? allLevelsComplete,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  };
+
+  // Clear saved game state
+  const clearGameState = () => {
+    localStorage.removeItem(STORAGE_KEY);
+  };
 
   // Load game data when user clicks Play
   const loadGameData = async () => {
     setLoading(true);
     try {
-      let data;
-
-      // Load the test game directly
       const response = await fetch("/configs/dev-game.json");
-      if (response.ok) {
-        data = await response.json();
-        setGameData(data);
-        setShowIntro(false);
-      } else {
+      if (!response.ok) {
         setFeedback("No game available. Check back later!");
+        setLoading(false);
+        return;
       }
+
+      const data = await response.json();
+      setGameData(data);
+
+      // Restore saved progress from localStorage
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const state = JSON.parse(saved);
+        if (!state.allLevelsComplete) {
+          setCurrentLevel(state.currentLevel);
+          setSolvedGroups(state.solvedGroups || []);
+          setAccumulatedRedHerrings(state.accumulatedRedHerrings || []);
+          setMistakesRemaining(state.mistakesRemaining ?? 4);
+          setGameComplete(state.gameComplete || false);
+        }
+      }
+
+      setShowIntro(false);
     } catch (error) {
       setFeedback("Failed to load today's game");
     }
@@ -146,13 +203,18 @@ export default function Home() {
 
   // Shuffle words on level change or game data load
   useEffect(() => {
-    if (!gameData) return; // Don't run until game data is loaded
+    if (!gameData) return;
 
     const currentWords = getCurrentWords();
     const shuffled = enhancedShuffle(currentWords);
     setShuffledWords(shuffled);
 
-    // Reset level-specific state
+    // Skip resetting state when restoring from localStorage
+    if (restoringState) {
+      setRestoringState(false);
+      return;
+    }
+
     setSelectedWords([]);
     setSolvedGroups([]);
     setGameComplete(false);
@@ -201,6 +263,7 @@ export default function Home() {
   };
 
   const startNewGame = () => {
+    clearGameState();
     setCurrentLevel(1);
     setAccumulatedRedHerrings([]);
     setSelectedWords([]);
@@ -263,19 +326,6 @@ export default function Home() {
       const groupData = currentLevelConfig.groups[correctGroupIndex];
       setFeedback(`Correct! You found the ${groupData.title} group!`);
 
-      // Save progress (fire-and-forget so it doesn't block level completion)
-      fetch("/api/game", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          playerId,
-          gameId: gameData?.gameId,
-          currentLevel,
-          completedGroups: [...solvedGroups, selectedWords],
-          mistakes: 4 - mistakesRemaining,
-        }),
-      }).catch((error) => console.error("Failed to save progress:", error));
-
       // Check for level completion
       const totalGroupsInLevel = currentLevelConfig.groups.length;
       if (newSolvedGroups.length === totalGroupsInLevel) {
@@ -283,21 +333,7 @@ export default function Home() {
 
         // Level-specific completion logic
         if (currentLevel === 4) {
-          // Final level completed - save final progress (fire-and-forget)
-          markTodayAsPlayed();
-          fetch("/api/game", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              playerId,
-              gameId: gameData?.gameId,
-              currentLevel,
-              completedGroups: [...solvedGroups, selectedWords],
-              mistakes: 4 - mistakesRemaining,
-              completed: true,
-              perfect: mistakesRemaining === 4,
-            }),
-          }).catch((error) => console.error("Failed to save final progress:", error));
+          saveGameState({ solvedGroups: newSolvedGroups, gameComplete: true, allLevelsComplete: true });
 
           setTimeout(() => {
             advanceToNextLevel(); // This will set allLevelsComplete
@@ -332,12 +368,17 @@ export default function Home() {
             }!`,
           );
 
+          saveGameState({ solvedGroups: newSolvedGroups, gameComplete: true });
+
           setTimeout(() => {
             advanceToNextLevel();
           }, 1500);
         }
         return; // Don't clear feedback for win condition
       }
+
+      // Save after each correct guess (not level complete)
+      saveGameState({ solvedGroups: newSolvedGroups });
     } else {
       // Incorrect guess - trigger shake animation
       setShakeWords([...selectedWords]);
@@ -358,9 +399,13 @@ export default function Home() {
 
         // Clear selected words
         setSelectedWords([]);
+
+        saveGameState({ solvedGroups: allGroupIndices, mistakesRemaining: 0, gameComplete: true });
       } else {
         setFeedback("Not quite right. Try again!");
         setShowFeedbackPopover(true);
+
+        saveGameState({ mistakesRemaining: newMistakesRemaining });
       }
 
       // Clear shake animation after it completes
@@ -545,7 +590,6 @@ export default function Home() {
 
   // Show level transition screen
   if (showLevelTransition) {
-    const completedLevels = transitionLevel - 1; // Number of levels completed before this one
 
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#b0c4ef] to-[#88A6E7] flex flex-col items-center justify-center p-4 relative">
@@ -606,6 +650,13 @@ export default function Home() {
                           }
                         }
                         setAccumulatedRedHerrings(newRedHerrings);
+                        saveGameState({
+                          currentLevel: level,
+                          solvedGroups: [],
+                          accumulatedRedHerrings: newRedHerrings,
+                          mistakesRemaining: 4,
+                          gameComplete: false,
+                        });
                       }
                     }
                   }}

@@ -1,31 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPlayerProgress, getTodayGameId } from '@/lib/redis';
+import { getPlayerProgress } from '@/lib/redis';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const playerId = searchParams.get('playerId');
+    const gameId = searchParams.get('gameId');
 
-    if (!playerId) {
+    if (!playerId || !gameId) {
       return NextResponse.json(
-        { error: 'Player ID is required' },
+        { error: 'Player ID and Game ID are required' },
         { status: 400 }
       );
     }
 
-    const gameId = getTodayGameId();
     const progress = await getPlayerProgress(playerId, gameId);
 
-    if (!progress) {
-      return NextResponse.json({
-        canPlay: true,
-        progress: null
-      });
-    }
-
     return NextResponse.json({
-      canPlay: !progress.completed,
-      progress
+      progress: progress || null
     });
 
   } catch (error) {
