@@ -676,7 +676,7 @@ export default function Home() {
 
         {/* Solved groups */}
         {solvedGroups.length > 0 && currentLevelConfig && (
-          <div className="space-y-3 mb-6">
+          <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
             {solvedGroups.map((groupId) => {
               const groupIndex = parseInt(groupId);
               const group = currentLevelConfig.groups[groupIndex];
@@ -685,12 +685,12 @@ export default function Home() {
               return (
                 <div
                   key={groupId}
-                  className={`${group.color} rounded-lg p-6 text-center`}
+                  className={`${group.color} rounded-lg p-3 sm:p-6 text-center`}
                 >
-                  <div className="font-bold text-xl text-slate-800 uppercase tracking-wide mb-2">
+                  <div className="font-bold text-sm sm:text-xl text-slate-800 uppercase tracking-wide mb-1 sm:mb-2">
                     {group.title}
                   </div>
-                  <div className="font-semibold text-lg text-slate-800 uppercase tracking-wide">
+                  <div className="font-semibold text-xs sm:text-lg text-slate-800 uppercase tracking-wide">
                     {group.words.join(", ")}
                   </div>
                 </div>
