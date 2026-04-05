@@ -51,22 +51,22 @@ Based on mistakes made per level:
 ## 🛠 Technical Stack
 
 ### Frontend
-- **Framework**: Next.js 15 with App Router
+- **Framework**: Next.js 16.2.2 with App Router
 - **React**: Version 19.1.0
 - **UI Library**: HeroUI 2.8.4 (Tailwind-based components)
 - **Styling**: Tailwind CSS v4
 - **Animation**: Framer Motion 12.23.12
+- **Icons**: Lucide React 0.544.0
 - **Date Handling**: date-fns 4.1.0
 - **TypeScript**: Full TypeScript implementation
 
 ### Backend
-- **Database**: Redis Cloud (hosted Redis instance)
+- **Database**: Redis (Railway-hosted)
 - **Authentication**: Basic HTTP auth for admin panel
 - **API**: Next.js API routes
 - **AI Integration**: Claude API for word generation
 
 ### Infrastructure
-- **Deployment**: Vercel-optimized
 - **Build Tool**: Turbopack for faster development
 - **Environment**: Node.js with Redis connectivity
 
