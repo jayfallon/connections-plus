@@ -73,17 +73,15 @@ Based on mistakes made per level:
 ## 🏗 Architecture Overview
 
 ### Data Storage
-Redis key patterns:
-```
-game:{YYYY-MM-DD}           # Daily game configurations
-player:{playerId}:{gameId}   # Player progress tracking
-```
+- **Game data**: Served from static JSON (`/configs/dev-game.json`)
+- **Game state**: Persisted in localStorage across page refreshes
+- **Redis**: Used for admin game configurations
 
-### Player Tracking
-- **No login required**: Anonymous player identification
-- **localStorage**: Persistent player ID across sessions
-- **Cookies**: Backup identification method
-- **Daily limits**: One game per day per player (UTC midnight reset)
+### Game State Persistence
+- Game progress (solved groups, current level, mistakes) saved to localStorage after each action
+- On page load, saved state is restored so the player picks up where they left off
+- State is cleared when the player clicks "Play Again" or "Start Over"
+- No login or player tracking required
 
 ### Game State Management
 ```typescript
@@ -226,20 +224,8 @@ Level 4: BEACHES (4) + CURRIES (4) + FRENCH FOOD (4) + DOUBLE MEANINGS (PARKER, 
 
 ### Player Privacy
 - **Anonymous**: No personal data collection
-- **Local Storage**: Player ID stored locally
+- **localStorage**: Game state stored locally in the browser
 - **No Tracking**: No cross-site tracking or analytics
-
-## 🚀 Deployment
-
-### Vercel Deployment
-1. Connect GitHub repository
-2. Configure environment variables in Vercel dashboard
-3. Deploy with automatic builds on commit
-
-### Required Environment Variables in Production
-- All `.env.local` variables must be configured
-- Redis connection must be accessible from deployment
-- Claude API key must be valid
 
 ## 🔮 Future Enhancements
 
@@ -259,10 +245,9 @@ Level 4: BEACHES (4) + CURRIES (4) + FRENCH FOOD (4) + DOUBLE MEANINGS (PARKER, 
 
 ## 🐛 Known Limitations
 
-- **One Puzzle Per Day**: Players must wait for next day
+- **Single Game**: Currently serves the development test game only
 - **No Undo**: No way to undo completed groups
-- **Browser Dependent**: Player ID tied to specific browser
-- **Admin Only**: No multi-admin support
+- **Browser Dependent**: Game state tied to specific browser via localStorage
 
 ## 📄 License
 
