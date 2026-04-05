@@ -263,23 +263,6 @@ export default function Home() {
       const groupData = currentLevelConfig.groups[correctGroupIndex];
       setFeedback(`Correct! You found the ${groupData.title} group!`);
 
-      // Save progress
-      try {
-        await fetch("/api/game", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            playerId,
-            gameId: gameData?.gameId,
-            currentLevel,
-            completedGroups: [...solvedGroups, selectedWords],
-            mistakes: 4 - mistakesRemaining,
-          }),
-        });
-      } catch (error) {
-        console.error("Failed to save progress:", error);
-      }
-
       // Check for level completion
       const totalGroupsInLevel = currentLevelConfig.groups.length;
       if (newSolvedGroups.length === totalGroupsInLevel) {
@@ -287,26 +270,7 @@ export default function Home() {
 
         // Level-specific completion logic
         if (currentLevel === 4) {
-          // Final level completed - mark as played and save final progress
-          markTodayAsPlayed();
-          try {
-            await fetch("/api/game", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                playerId,
-                gameId: gameData?.gameId,
-                currentLevel,
-                completedGroups: [...solvedGroups, selectedWords],
-                mistakes: 4 - mistakesRemaining,
-                completed: true,
-                perfect: mistakesRemaining === 4,
-              }),
-            });
-          } catch (error) {
-            console.error("Failed to save final progress:", error);
-          }
-
+          // Final level completed
           setTimeout(() => {
             advanceToNextLevel(); // This will set allLevelsComplete
           }, 1500);
